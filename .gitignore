@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/scrapped/*
+/firstExample/*
+package-lock.json
