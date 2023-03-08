@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class Chunk {
-  constructor(dim, color, id, scene, pos) {
+  constructor(dim, color, id, pos) {
     this.id = id
     this.center = pos.toArray()
     this.dim = dim
@@ -14,17 +14,12 @@ export class Chunk {
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
 
-    scene.add(this.mesh)
     this.mesh.position.copy(pos)
     
     this.offset_x_dx = this.center[0] + this.halfDim
     this.offset_x_sx = this.center[0] - this.halfDim
     this.offset_z_up = this.center[2] + this.halfDim
     this.offset_z_down = this.center[2] - this.halfDim
-    
-    // console.log('chunk with id: ' + this.id + '\n center: ' + this.center.toArray() + '\n' +
-    // 'x_thresholds: ' + this.offset_x_sx + ' ' + this.offset_x_dx + '\n' +
-    // 'z_thresholds: ' + this.offset_z_up + ' ' + this.offset_z_down)
   }
 
   checkNewEntries(position, centerId) { 

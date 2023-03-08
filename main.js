@@ -21,6 +21,8 @@ let terrainCenter = [0, 0, 0]
 let centerId = 4
 const clock = new THREE.Clock()
 
+let group = new THREE.Group()
+
 let fov = 60
 let aspect = window.innerWidth / window.innerHeight
 let near = 1
@@ -36,8 +38,9 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
+  scene.add(group)
 
-  generatePlainTerrain(scene)
+  generatePlainTerrain(group)
 
   scene.add(new THREE.AmbientLight( 0x404040 ))
 
@@ -110,12 +113,13 @@ function render() {
 function generatePlainTerrain(scene) {
   let chunkPos = new THREE.Vector3(-chunkDim, 0, -chunkDim)
   for (let i = 0; i < 9; i++) {
-    chunks.push(new Chunk(chunkDim, colors[i] , i, scene, chunkPos))
+    chunks.push(new Chunk(chunkDim, colors[i] , i, chunkPos))
     chunkPos.setX(chunkPos.x + chunkDim)
     if (i === 2 || i === 5) {
       chunkPos.setX(-chunkDim)
       chunkPos.setZ(chunkPos.z + chunkDim)
     }
+    group.add(chunks[i].mesh)
   }
 }
 
