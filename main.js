@@ -40,7 +40,7 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0xffffff);
+  // scene.background = new THREE.Color(0xffffff);
   scene.add(group)
 
   scene.add(new THREE.AmbientLight( 0x404040 ))
