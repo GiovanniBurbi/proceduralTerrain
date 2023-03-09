@@ -18,6 +18,7 @@
     "gsap": "^3.11.4",
     "simplex-noise": "^4.0.1",
     "stats.js": "^0.17.0",
-    "three": "^0.150.1"
+    "three": "^0.150.1",
+    "three-noise": "^1.1.2"
   }
 }
