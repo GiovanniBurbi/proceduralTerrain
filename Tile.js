@@ -5,7 +5,7 @@ import { Perlin } from 'three-noise';
 export class Tile {
   constructor(center, dim) {
     this.center = center
-    this.dim = dim + 300
+    this.dim = dim
 
     this.segments = 30
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
@@ -19,6 +19,8 @@ export class Tile {
     this.mesh.receiveShadow = true;
 
     this.mesh.position.copy(new THREE.Vector3().fromArray(center))
+
+    this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
 // 
 // 
@@ -42,33 +44,32 @@ export class Tile {
 
     this.mesh2.position.copy(new THREE.Vector3().fromArray(center2))
 
-    this.noise = new Perlin(5)
+    this.noise = new Perlin(36)
 
     this.noiseMap()
     this.visualizeMap()
   }
 
   noiseMap() {
-    const rand = 10
+    const rand = 40
     let vertices = this.mesh.geometry.attributes.position.array.slice()
-    const width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
-    // console.log(width)
 
-    let height = new Array(this.mesh.geometry.attributes.position.count)
+    this.height = new Array(this.mesh.geometry.attributes.position.count)
     let pn
     let yOff = 0
-    for (let y = 0; y < width; y++){
+    for (let y = 0; y < this.width; y++){
       let xOff = 0
-      for(let x = 0; x < width; x++){
-        pn = this.noise.get2(new THREE.Vector2(xOff, yOff))
-        height[y * width + x] = pn 
-        xOff += 0.35
+      for(let x = 0; x < this.width; x++){
+        pn = Math.abs(this.noise.get2(new THREE.Vector2(xOff, yOff)))
+        // pn = this.noise.get2(new THREE.Vector2(xOff, yOff))
+        this.height[y * this.width + x] = pn 
+        xOff += 0.2
       }
-      yOff += 0.35
+      yOff += 0.2
     }
 
-    for(let i = 0; i < height.length; i++){
-      vertices[i * 3 + 2] = height[i] * (rand + rand) - rand
+    for(let i = 0; i < this.height.length; i++){
+      vertices[i * 3 + 2] = this.height[i] * (rand + rand) - rand
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -83,32 +84,18 @@ export class Tile {
   visualizeMap() {
     // use value of height vector to create a new smaller mesh so that the noise 
     // can be visualized
-    let vertices = this.noiseMap()
-    let colors = []
-    const width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
-    const rand = 50
+    let a
 
-    let r=0, g=0, b=0, a
+    this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.width*this.width*4, 4))
 
-    this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(width*width*4, 4))
-
-    let yOff = 0
-    for (let y = 0; y < width; y++){
-      let xOff = 0
-      for(let x = 0; x < width; x++){
-        a = Math.abs(this.noise.get2(new THREE.Vector2(xOff, yOff)))
-        // if (r < 0.8) {
-        //   r += 0.1
-        // }
-        colors.push(r, g, b, a)
-        xOff +=0.35
-        this.mesh2.geometry.attributes.color.setXYZW( (y * width + x), 1, 1, 1, a)
+    for (let y = 0; y < this.width; y++){
+      for(let x = 0; x < this.width; x++){
+        let p = y * this.width + x
+        //  multiply per 2 to increase contrast
+        a = Math.abs(this.height[p]) * 2
+        this.mesh2.geometry.attributes.color.setXYZW( p, 1, 1, 1, a)
       }
-      yOff += 0.35
     }
-    console.log(this.mesh2)
-
-    // this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
     this.mesh.geometry.materialNeedUpdate = true
   }
