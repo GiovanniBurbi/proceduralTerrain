@@ -11,12 +11,15 @@ import { GUI } from 'dat.gui'
 let scene, camera, renderer, controls
 let stats, gui, guiParams
 let chunks = []
-let colors = ['#FF69B4', '#0000FF', '#808080',
-              '#008000', '#800080', '#FF0000',
-              '#F0F8FF', '#B22222', '#FFFACD'
-            ]
+// let colors = ['#FF69B4', '#0000FF', '#808080',
+//               '#008000', '#800080', '#FF0000',
+//               '#F0F8FF', '#B22222', '#FFFACD'
+//             ]
+let colors = ['#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', 
+              '#FF69B4', '#FF69B4', '#FF69B4',
+              ]
 
-let chunkDim = 100
+let chunkDim = 500
 let terrainCenter = [0, 0, 0]
 let centerId = 4
 const clock = new THREE.Clock()
@@ -44,7 +47,7 @@ function init() {
 
   scene.add(new THREE.AmbientLight( 0x404040 ))
 
-  camera.position.set( 0, 10, 0 )
+  camera.position.set( 0, 100, 0 )
   // camera.rotateX(100)
 
   // camera.position.set( 0, 20, 20 )
