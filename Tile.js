@@ -25,7 +25,8 @@ export class Tile {
 
     this.geometry2 = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
     this.material2 = new THREE.MeshStandardMaterial( {
-      wireframe: true,
+      wireframe: false,
+      vertexColors: true
     } )
     this.mesh2 = new THREE.Mesh( this.geometry2, this.material2 )
     this.mesh2.rotateX( - Math.PI / 2)
@@ -43,6 +44,7 @@ export class Tile {
     this.noise = new Perlin(5)
 
     this.noiseMap()
+    this.visualizeMap()
   }
 
   noiseMap() {
@@ -59,9 +61,9 @@ export class Tile {
       for(let x = 0; x < width; x++){
         pn = this.noise.get2(new THREE.Vector2(xOff, yOff))
         height[y * width + x] = pn * (rand + rand) - rand
-        xOff += 0.1
+        xOff += 0.35
       }
-      yOff += 0.1
+      yOff += 0.35
     }
 
     for(let i = 0; i < height.length; i++){
@@ -73,5 +75,34 @@ export class Tile {
     this.mesh.geometry.elementsNeedUpdate = true;
     this.mesh.geometry.verticesNeedUpdate = true;
     this.mesh.geometry.computeVertexNormals();
+
+    return vertices
+  }
+
+  visualizeMap() {
+    let vertices = this.noiseMap()
+    let colors = []
+    const width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
+    const rand = 50
+
+    let r=0, g=0, b=0
+
+    let yOff = 0
+    for (let y = 0; y < width; y++){
+      let xOff = 0
+      for(let x = 0; x < width; x++){
+        r = this.noise.get2(new THREE.Vector2(xOff, yOff))
+        if (r < 0.8) {
+          r += 0.1
+        }
+        colors.push(r, g, b)
+        xOff +=0.35
+      }
+      yOff += 0.35
+    }
+
+    this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+
+    this.mesh.geometry.materialNeedUpdate = true
   }
 }
