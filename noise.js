@@ -7,7 +7,7 @@ export class Noise {
     this.randOff = Math.random() * 20000 - 10000
   }
 
-  computeHeight(x, y, width) {
+  computeHeight(x, y, width, coords) {
     let amplitude = 1
     let frequency = 1
     let noiseHeight = 0
@@ -18,8 +18,8 @@ export class Noise {
     const halfH = width / 2
 
     for(let i = 0; i < this.params.noise.octaves; i++){
-      let xOff = (x - halfW) / this.params.noise.scale * frequency + this.params.noise.offsetX + this.randOff
-      let yOff = (y - halfH) / this.params.noise.scale * frequency + this.params.noise.offsetY + this.randOff
+      let xOff = (x - halfW + this.params.noise.offsetX  + this.randOff) / this.params.noise.scale * frequency
+      let yOff = (y - halfH + this.params.noise.offsetY + this.randOff) / this.params.noise.scale * frequency
 
       noiseValue = perlin(xOff, yOff) * 2 - 1
       noiseHeight += noiseValue * amplitude
@@ -31,7 +31,7 @@ export class Noise {
     return noiseHeight
   }
 
-  generateNoiseMap(width, dim) {
+  generateNoiseMap(coords, width, dim) {
     const heights = new Array(dim)
 
     let maxNoiseHeight = Number.NEGATIVE_INFINITY 
@@ -39,7 +39,7 @@ export class Noise {
 
     for (let y = 0; y < width; y++){
       for(let x = 0; x < width; x++){
-        let noiseValue = this.computeHeight(x, y, width)
+        let noiseValue = this.computeHeight(x, y, width, coords)
 
         heights[y * width + x] = noiseValue 
 
@@ -57,6 +57,8 @@ export class Noise {
         heights[y * width + x] = math.invLerp(heights[y * width + x], minNoiseHeight, maxNoiseHeight)
       }
     }
+    console.log(heights.length)
+    console.log(width)
     return heights
   }
 }

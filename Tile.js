@@ -8,6 +8,8 @@ export class Tile {
     this.center = center
     this.dim = dim
 
+    this.coords = [center[0]/dim, center[2]/dim]
+
     this.segments = 30
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
     this.material = new THREE.MeshStandardMaterial( {
@@ -26,7 +28,7 @@ export class Tile {
 
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
-    this.heightMap = this.noise.generateNoiseMap(this.width, this.num_vertex)
+    this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
     this.buildTerrain(params.terrain.minHeight, params.terrain.maxHeight)
     this.visualizeMap()
   }
@@ -61,7 +63,7 @@ export class Tile {
   }
 
   rebuild(minH, maxH) {
-    this.heightMap = this.noise.generateNoiseMap(this.width, this.num_vertex)
+    this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
     this.buildTerrain(minH, maxH)
     this.visualizeMap()
   }

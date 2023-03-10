@@ -29,8 +29,8 @@ export class TileManager {
     }
 
     this.params.terrain = {
-      maxHeight: 10,
-      minHeight: -10,
+      maxHeight: 1,
+      minHeight: -1,
     }
 
     const onParamsChange = () =>  {
@@ -52,8 +52,8 @@ export class TileManager {
     rollup.add(this.params.noise, 'offsetY', 0.0, 20, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
-    terrainRollup.add(this.params.terrain, 'maxHeight', 2, 30, 1).onChange(funcChange)
-    terrainRollup.add(this.params.terrain, 'minHeight', -30, -2).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'maxHeight', 1, 30, 1).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'minHeight', -30, -1).onChange(funcChange)
   }
 
   createTiles(num_chunks) {
