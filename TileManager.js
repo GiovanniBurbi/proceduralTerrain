@@ -12,7 +12,7 @@ export class TileManager {
 
     this.initGUI(gui, params)
 
-    this.createTiles(1)
+    this.createTiles(9)
   }
 
   initGUI(gui, params) {
@@ -34,7 +34,9 @@ export class TileManager {
     }
 
     const onParamsChange = () =>  {
-      this.tiles[0].rebuild(this.params.terrain.minHeight, this.params.terrain.maxHeight)
+      for (let tile of this.tiles){
+        tile.rebuild(this.params.terrain.minHeight, this.params.terrain.maxHeight)
+      }
     }
 
     this.createNoiseRollup(onParamsChange)
@@ -55,8 +57,8 @@ export class TileManager {
   }
 
   createTiles(num_chunks) {
-    let tilePos = [0,0,0]
-    // tilePos = [-this.tileDim, 0, -this.tileDim]
+    // let tilePos = [0,0,0]
+    let tilePos = [-this.tileDim, 0, -this.tileDim]
     
     for(let i = 0; i < num_chunks; i++){
       this.tiles.push(new Tile(tilePos, this.tileDim, this.noise, this.params))
