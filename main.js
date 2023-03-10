@@ -9,7 +9,14 @@ import { Tile } from './Tile';
 
 
 let scene, camera, renderer, controls
-let stats, gui, guiParams
+let stats
+let gui
+let guiParams = {
+                  general: {
+                  },
+                }
+
+
 let chunks = []
 let colors = ['#FF69B4', '#0000FF', '#808080',
               '#008000', '#800080', '#FF0000',
@@ -18,7 +25,7 @@ let colors = ['#FF69B4', '#0000FF', '#808080',
 // let colors = ['#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', 
 //               '#FF69B4', '#FF69B4', '#FF69B4']
 
-let chunkDim = 200
+let chunkDim = 100
 let terrainCenter = [0, 0, 0]
 let centerId = 4
 const clock = new THREE.Clock()
@@ -37,16 +44,20 @@ animate()
 function init() {
   const container = document.getElementById( 'container' )
 
+  createGUI()
+
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  // scene.background = new THREE.Color(0xffffff);
+  scene.background = new THREE.Color(0xaaaaaa)
   scene.add(group)
 
-  scene.add(new THREE.AmbientLight( 0x404040 ))
+  const sunlight = new THREE.DirectionalLight( 0xffffff )
+  sunlight.position.y = 500
+  scene.add(sunlight)
 
-  camera.position.set( 0, chunkDim, 0 )
-  camera.rotateX(150)
+  camera.position.set( 0, chunkDim, 50 )
+  camera.rotateX(200)
 
   // camera.position.set( 0, 20, 20 )
 
@@ -113,6 +124,13 @@ function render() {
   renderer.render( scene, camera )
 }
 
+function createGUI() {
+  gui = new GUI()
+
+  const generalRollup = gui.addFolder('General')
+  gui.close()
+}
+
 function generatePlainTerrain() {
   // let chunkPos = new THREE.Vector3(-chunkDim, 0, -chunkDim)
   // for (let i = 0; i < 9; i++) {
@@ -125,13 +143,9 @@ function generatePlainTerrain() {
 
   //   group.add(chunks[i].mesh)
   // }
-  let center = new Array(3)
-  center[0] = 0
-  center[1] = 0
-  center[2] = -200
-  const tile = new Tile(center, chunkDim)
+  const tile = new Tile(terrainCenter, chunkDim, gui, guiParams)
   group.add(tile.mesh)
-  group.add(tile.mesh2)
+  // group.add(tile.mesh2)
 }
 
 function notifyChunks(newPos) {

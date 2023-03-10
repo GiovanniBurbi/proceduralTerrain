@@ -17,6 +17,10 @@ export const math = (function() {
       return x * (b - a) + a;
     },
 
+    invLerp: function(x, a, b) {
+      return (x - a) / (b - a)
+    },
+
     smoothstep: function(x, a, b) {
       x = x * x * (3.0 - 2.0 * x);
       return x * (b - a) + a;

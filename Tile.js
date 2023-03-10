@@ -1,8 +1,31 @@
 import * as THREE from 'three';
-import { Perlin } from 'three-noise';
+import { math } from './math';
+import perlin from 'https://cdn.jsdelivr.net/gh/mikechambers/es6-perlin-module/perlin.js'
 
 export class Tile {
-  constructor(center, dim) {
+  constructor(center, dim, gui, params) {
+    this.gui = gui
+    this.params = params
+
+    this.params.noise = {
+      octaves: 4,
+      persistance: 0.5,
+      lacunarity: 2,
+      scale: 8,
+      offsetX: 0,
+      offsetY: 0
+    }
+
+    
+
+    this.randOff = Math.random() * 20000 - 10000
+
+    const onNoiseChange = () =>  {
+      this.visualizeMap()
+    }
+
+    this.createNoiseRollup(onNoiseChange)
+
     this.center = center
     this.dim = dim
 
@@ -11,7 +34,7 @@ export class Tile {
     this.material = new THREE.MeshStandardMaterial( {
       wireframe: false,
       vertexColors: true,
-      transparent : true,
+      // transparent : true,
     } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
@@ -23,57 +46,74 @@ export class Tile {
 
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
-// 
-// 
-
-    this.geometry2 = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
-    this.material2 = new THREE.MeshStandardMaterial( {
-      wireframe: false,
-      vertexColors: true,
-      transparent : true,
-    } )
-    this.mesh2 = new THREE.Mesh( this.geometry2, this.material2 )
-    this.mesh2.rotateX( - Math.PI / 2)
-
-    this.mesh2.castShadow = false;
-    this.mesh2.receiveShadow = true;
-
-    let center2 = new Array(3)
-    center2[0]=center[0]
-    center2[1]=center[1]
-    center2[2]=center[2] - this.dim
-
-    this.mesh2.position.copy(new THREE.Vector3().fromArray(center2))
-
-    this.noise = new Perlin(36)
-
-    this.noiseMap()
-    this.visualizeMap()
+    this.buildTerrain()
+    // this.visualizeMap()
   }
 
-  noiseMap() {
-    const rand = 40
-    let vertices = this.mesh.geometry.attributes.position.array.slice()
-    const scale = 5.3
+  generateNoiseMap() {
+    const heights = new Array(this.mesh.geometry.attributes.position.count)
 
-    this.height = new Array(this.mesh.geometry.attributes.position.count)
-    let pn
-    let yOff = 0
+    let maxNoiseHeight = Number.NEGATIVE_INFINITY 
+    let minNoiseHeight = Number.POSITIVE_INFINITY
+
     for (let y = 0; y < this.width; y++){
-      let xOff = 0
       for(let x = 0; x < this.width; x++){
-        // pn = this.noise.get2(new THREE.Vector2(xOff, yOff))
-        xOff = x / scale
-        yOff = y / scale
-        pn = Math.abs(this.noise.get2(new THREE.Vector2(xOff, yOff))) 
-        this.height[y * this.width + x] = pn 
-        // xOff += 0.2
+        let noiseValue = this.computeHeight(x, y)
+
+        heights[y * this.width + x] = noiseValue 
+
+        if (noiseValue > maxNoiseHeight) {
+          maxNoiseHeight = noiseValue
+        }
+        if (noiseValue < minNoiseHeight) {
+          minNoiseHeight = noiseValue
+        }
       }
-      // yOff += 0.2
     }
 
-    for(let i = 0; i < this.height.length; i++){
-      vertices[i * 3 + 2] = this.height[i] * (rand + rand) - rand
+    for (let y = 0; y < this.width; y++){
+      for(let x = 0; x < this.width; x++){
+        heights[y * this.width + x] = math.invLerp(heights[y * this.width + x], minNoiseHeight, maxNoiseHeight)
+      }
+    }
+    return heights
+  }
+
+  computeHeight(x, y) {
+
+    let amplitude = 1
+    let frequency = 1
+    let noiseHeight = 0
+
+    let perlinNoise
+
+    const halfW = this.width / 2
+    const halfH = this.width / 2
+
+    for(let i = 0; i < this.params.noise.octaves; i++){
+      let xOff = (x - halfW) / this.params.noise.scale * frequency + this.params.noise.offsetX + this.randOff
+      let yOff = (y - halfH) / this.params.noise.scale * frequency + this.params.noise.offsetY + this.randOff
+
+      // this noise return values between -1 and 1
+      perlinNoise = perlin(xOff, yOff) * 2 - 1
+      noiseHeight += perlinNoise * amplitude
+
+      amplitude *= this.params.noise.persistance
+      frequency *= this.params.noise.lacunarity
+    }
+
+    return noiseHeight
+  }
+
+  buildTerrain() {
+    const rand = 20
+    let vertices = this.mesh.geometry.attributes.position.array.slice()
+    
+    const heights = this.generateNoiseMap()
+
+    for(let i = 0; i < heights.length; i++){
+      vertices[i * 3 + 2] = heights[i]
+      // vertices[i * 3 + 2] = heights[i] * (rand + rand) - rand
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -81,29 +121,32 @@ export class Tile {
     this.mesh.geometry.elementsNeedUpdate = true;
     this.mesh.geometry.verticesNeedUpdate = true;
     this.mesh.geometry.computeVertexNormals();
-
-    return vertices
   }
 
   visualizeMap() {
-    // use value of height vector to create a new smaller mesh so that the noise 
-    // can be visualized
-    let a
+    const heights = this.generateNoiseMap()
 
-    this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.width*this.width*4, 4))
-    this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.width*this.width*4, 4))
+    let colors = []
 
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
-        let p = y * this.width + x
-        //  multiply per 2 to increase contrast
-        a = Math.abs(this.height[p]) * 2
-        this.mesh2.geometry.attributes.color.setXYZW( p, 1, 1, 1, a)
-        this.mesh.geometry.attributes.color.setXYZW( p, a/2, 0, 0, 1)
+        let c = heights[y * this.width + x]
+        colors.push(c,c,c)
       }
     }
 
-    this.mesh2.geometry.materialNeedUpdate = true
+    this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+
     this.mesh.geometry.materialNeedUpdate = true
+  }
+
+  createNoiseRollup(funcChange) {
+    const rollup = this.gui.addFolder('Noise')
+    rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
+    rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'scale', 0.3, 30).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetX', 0.0, 20, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetY', 0.0, 20, 0.1).onChange(funcChange)
   }
 }
