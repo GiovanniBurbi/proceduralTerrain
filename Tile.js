@@ -10,7 +10,9 @@ export class Tile {
     this.segments = 30
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
     this.material = new THREE.MeshStandardMaterial( {
-      wireframe: true,
+      wireframe: false,
+      vertexColors: true,
+      transparent : true,
     } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
@@ -87,6 +89,7 @@ export class Tile {
     let a
 
     this.mesh2.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.width*this.width*4, 4))
+    this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.width*this.width*4, 4))
 
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
@@ -94,9 +97,11 @@ export class Tile {
         //  multiply per 2 to increase contrast
         a = Math.abs(this.height[p]) * 2
         this.mesh2.geometry.attributes.color.setXYZW( p, 1, 1, 1, a)
+        this.mesh.geometry.attributes.color.setXYZW( p, a/2, 0, 0, 1)
       }
     }
 
+    this.mesh2.geometry.materialNeedUpdate = true
     this.mesh.geometry.materialNeedUpdate = true
   }
 }
