@@ -57,8 +57,11 @@ export class TileManager {
   }
 
   createTiles(num_chunks) {
-    // let tilePos = [0,0,0]
     let tilePos = [-this.tileDim, 0, -this.tileDim]
+
+    if (num_chunks === 1) {
+      tilePos = [0,0,0]
+    }
     
     for(let i = 0; i < num_chunks; i++){
       this.tiles.push(new Tile(tilePos, this.tileDim, this.noise, this.params))
