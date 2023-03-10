@@ -4,6 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 // import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
 import { FirstPersonControlsEnchanted } from './FirstPersonControlsEnchanted'
 import { Chunk } from './Chunk';
+import { TileManager } from './TileManager';
 import { GUI } from 'dat.gui'
 import { Tile } from './Tile';
 
@@ -37,6 +38,8 @@ let aspect = window.innerWidth / window.innerHeight
 let near = 1
 let far = 10000
 
+let tileManager
+
 init()
 animate()
 
@@ -49,7 +52,7 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x000000)
+  scene.background = new THREE.Color(0xaaaaaa)
   scene.add(group)
 
   const sunlight = new THREE.DirectionalLight( 0xffffff )
@@ -71,7 +74,7 @@ function init() {
   // controls = new FirstPersonControls( camera, renderer.domElement )
   controls = new FirstPersonControlsEnchanted( camera, renderer.domElement )
   controls.enabled = false
-  controls.movementSpeed = 100
+  controls.movementSpeed = 50
   controls.lookSpeed = 0.1
   // controls.lookVertical = false
 
@@ -143,8 +146,10 @@ function generatePlainTerrain() {
 
   //   group.add(chunks[i].mesh)
   // }
-  const tile = new Tile(terrainCenter, chunkDim, gui, guiParams)
-  group.add(tile.mesh)
+  const tileManager = new TileManager(chunkDim, group, gui, guiParams)
+
+  // const tile = new Tile(terrainCenter, chunkDim, gui, guiParams)
+  // group.add(tile.mesh)
   // group.add(tile.mesh2)
 }
 

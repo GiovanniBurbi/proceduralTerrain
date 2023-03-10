@@ -2,13 +2,8 @@ import * as THREE from 'three';
 import { Noise } from './noise';
 
 export class Tile {
-  constructor(center, dim, gui, params) {
-
-    this.initGUI(gui, params)
-
-    this.noise = new Noise(params)
-
-    this.hScale = 10
+  constructor(center, dim, noiseGen, params) {
+    this.noise = noiseGen
 
     this.center = center
     this.dim = dim
@@ -32,47 +27,15 @@ export class Tile {
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
     this.heightMap = this.noise.generateNoiseMap(this.width, this.num_vertex)
-    this.buildTerrain()
+    this.buildTerrain(params.terrain.minHeight, params.terrain.maxHeight)
     this.visualizeMap()
   }
 
-  initGUI(gui, params) {
-    this.gui = gui
-    this.params = params
-
-    this.params.noise = {
-      octaves: 4,
-      persistance: 0.5,
-      lacunarity: 2,
-      scale: 8,
-      offsetX: 0,
-      offsetY: 0
-    }
-
-    const onNoiseChange = () =>  {
-      this.heightMap = this.noise.generateNoiseMap(this.width, this.num_vertex)
-      this.visualizeMap()
-      this.buildTerrain()
-    }
-
-    this.createNoiseRollup(onNoiseChange)
-  }
-
-  createNoiseRollup(funcChange) {
-    const rollup = this.gui.addFolder('Noise')
-    rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
-    rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'scale', 0.3, 30).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetX', 0.0, 20, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetY', 0.0, 20, 0.1).onChange(funcChange)
-  }
-
-  buildTerrain() {
+  buildTerrain(minH, maxH) {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
     for(let i = 0; i < this.heightMap.length; i++){
-      vertices[i * 3 + 2] = this.heightMap[i] * (2 * this.hScale) - this.hScale
+      vertices[i * 3 + 2] = this.heightMap[i] * (maxH - minH) + minH
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -95,5 +58,11 @@ export class Tile {
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
     this.mesh.geometry.materialNeedUpdate = true
+  }
+
+  rebuild(minH, maxH) {
+    this.heightMap = this.noise.generateNoiseMap(this.width, this.num_vertex)
+    this.buildTerrain(minH, maxH)
+    this.visualizeMap()
   }
 }
