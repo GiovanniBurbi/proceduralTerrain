@@ -49,15 +49,15 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0xaaaaaa)
+  scene.background = new THREE.Color(0x000000)
   scene.add(group)
 
   const sunlight = new THREE.DirectionalLight( 0xffffff )
   sunlight.position.y = 500
   scene.add(sunlight)
 
-  camera.position.set( 0, chunkDim, 50 )
-  camera.rotateX(200)
+  camera.position.set( 0, chunkDim, 100 )
+  camera.rotateX(125)
 
   // camera.position.set( 0, 20, 20 )
 

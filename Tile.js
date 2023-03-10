@@ -22,6 +22,7 @@ export class Tile {
 
     const onNoiseChange = () =>  {
       this.visualizeMap()
+      this.buildTerrain()
     }
 
     this.createNoiseRollup(onNoiseChange)
@@ -34,7 +35,6 @@ export class Tile {
     this.material = new THREE.MeshStandardMaterial( {
       wireframe: false,
       vertexColors: true,
-      // transparent : true,
     } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
@@ -47,7 +47,7 @@ export class Tile {
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
     this.buildTerrain()
-    // this.visualizeMap()
+    this.visualizeMap()
   }
 
   generateNoiseMap() {
@@ -106,14 +106,14 @@ export class Tile {
   }
 
   buildTerrain() {
-    const rand = 20
+    const rand = 10
     let vertices = this.mesh.geometry.attributes.position.array.slice()
     
     const heights = this.generateNoiseMap()
 
     for(let i = 0; i < heights.length; i++){
-      vertices[i * 3 + 2] = heights[i]
-      // vertices[i * 3 + 2] = heights[i] * (rand + rand) - rand
+      // vertices[i * 3 + 2] = heights[i]
+      vertices[i * 3 + 2] = heights[i] * (rand + rand) - rand
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
