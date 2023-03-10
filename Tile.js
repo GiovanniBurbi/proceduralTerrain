@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Vector2 } from 'three';
 import { Perlin } from 'three-noise';
 
 export class Tile {
@@ -55,6 +54,7 @@ export class Tile {
   noiseMap() {
     const rand = 40
     let vertices = this.mesh.geometry.attributes.position.array.slice()
+    const scale = 5.3
 
     this.height = new Array(this.mesh.geometry.attributes.position.count)
     let pn
@@ -62,12 +62,14 @@ export class Tile {
     for (let y = 0; y < this.width; y++){
       let xOff = 0
       for(let x = 0; x < this.width; x++){
-        pn = Math.abs(this.noise.get2(new THREE.Vector2(xOff, yOff)))
         // pn = this.noise.get2(new THREE.Vector2(xOff, yOff))
+        xOff = x / scale
+        yOff = y / scale
+        pn = Math.abs(this.noise.get2(new THREE.Vector2(xOff, yOff))) 
         this.height[y * this.width + x] = pn 
-        xOff += 0.2
+        // xOff += 0.2
       }
-      yOff += 0.2
+      // yOff += 0.2
     }
 
     for(let i = 0; i < this.height.length; i++){
