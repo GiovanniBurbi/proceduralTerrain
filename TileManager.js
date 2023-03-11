@@ -48,7 +48,6 @@ export class TileManager {
       for (let tile of this.tiles){
         tile.rebuild(this.params.terrain.minHeight, this.params.terrain.maxHeight)
         this.updateNormals()
-        this.updateWireframe()
       }
     }
 
@@ -68,38 +67,20 @@ export class TileManager {
 
     const onWireframeViewChange = () => {
       if (this.params.terrain.showWireframe) {
-        let i = 0
         for (let tile of this.tiles) {
-          var geo = new THREE.EdgesGeometry( tile.mesh.geometry )
-          var mat = new THREE.LineBasicMaterial( { color: 0xffffff } )
-          this.wireframes[i] = new THREE.LineSegments( geo, mat )
-          tile.mesh.add(this.wireframes[i])
-          i++
+          tile.mesh.material.wireframe = true
+          tile.mesh.material.vertexColors = false
+          console.log(tile.mesh)
         }
       } else {
-        let i = 0
         for (let tile of this.tiles) {
-          tile.mesh.remove(this.wireframes[i])
-          i++
+          tile.mesh.material.wireframe = false
+          tile.mesh.material.vertexColors = true
         }
       }
     }
 
     this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange)
-  }
-
-  updateWireframe() {
-    if (this.params.terrain.showWireframe) {
-      let i = 0
-        for (let tile of this.tiles) {
-          tile.mesh.remove(this.wireframes[i])
-          var geo = new THREE.EdgesGeometry( tile.mesh.geometry )
-          var mat = new THREE.LineBasicMaterial( { color: 0xffffff } )
-          this.wireframes[i] = new THREE.LineSegments( geo, mat )
-          tile.mesh.add(this.wireframes[i])
-          i++
-        }
-    }
   }
 
   updateNormals() {

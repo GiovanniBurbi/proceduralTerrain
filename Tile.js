@@ -15,9 +15,6 @@ export class Tile {
     this.material = new THREE.MeshStandardMaterial( {
       wireframe: false,
       vertexColors: true,
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-    polygonOffsetUnits: 1,
     } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
