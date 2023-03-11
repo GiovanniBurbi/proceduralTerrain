@@ -24,8 +24,6 @@ let terrainCenter = [0, 0, 0]
 let centerId = 4
 const clock = new THREE.Clock()
 
-let group = new THREE.Group()
-
 let fov = 60
 let aspect = window.innerWidth / window.innerHeight
 let near = 1
@@ -46,10 +44,9 @@ function init() {
 
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xaaaaaa)
-  scene.add(group)
 
   const sunlight = new THREE.DirectionalLight( 0xffffff )
-  sunlight.position.y = 500
+  sunlight.position.y = 100
   scene.add(sunlight)
 
   camera.position.set( 0, chunkDim, 100 )
@@ -139,7 +136,7 @@ function generatePlainTerrain() {
 
   //   group.add(chunks[i].mesh)
   // }
-  const tileManager = new TileManager(chunkDim, group, gui, guiParams)
+  const tileManager = new TileManager(chunkDim, scene, gui, guiParams)
 
   // const tile = new Tile(terrainCenter, chunkDim, gui, guiParams)
   // group.add(tile.mesh)

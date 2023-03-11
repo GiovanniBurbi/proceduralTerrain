@@ -8,13 +8,16 @@ export class Tile {
     this.center = center
     this.dim = dim
 
-    this.coords = [center[0]/dim, center[2]/dim]
+    this.coords = [this.center[0]/this.dim, this.center[2]/this.dim]
 
     this.segments = 30
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
     this.material = new THREE.MeshStandardMaterial( {
       wireframe: false,
       vertexColors: true,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1,
     } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
@@ -68,13 +71,6 @@ export class Tile {
 
   rebuild(minH, maxH) {
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
-
-    // todo: prova a fare la media tra vertici vicini 
-    // height(x,y) = ROUND( (
-    // height(x-1,y-1) + height(x-1,y) + height(x-1,y+1) +
-    // height(x,y-1) + height(x,y) + height(x,y+1) +
-    // height(x+1,y-1) + height(x+1,y) + height(x+1,y+1) 
-    // ) / 9)
 
     this.buildTerrain(minH, maxH)
     this.visualizeMap()
