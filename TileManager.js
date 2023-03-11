@@ -29,7 +29,7 @@ export class TileManager {
     }
 
     this.params.terrain = {
-      maxHeight: 0,
+      maxHeight: 20,
       minHeight: 0,
     }
 
@@ -48,8 +48,8 @@ export class TileManager {
     rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'scale', 0.3, 30).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetX', 0.0, 20, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetY', 0.0, 20, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetX', 0.0, 50, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetY', 0.0, 50, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
     terrainRollup.add(this.params.terrain, 'maxHeight', 0, 30, 1).onChange(funcChange)

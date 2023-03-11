@@ -68,6 +68,14 @@ export class Tile {
 
   rebuild(minH, maxH) {
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
+
+    // todo: prova a fare la media tra vertici vicini 
+    // height(x,y) = ROUND( (
+    // height(x-1,y-1) + height(x-1,y) + height(x-1,y+1) +
+    // height(x,y-1) + height(x,y) + height(x,y+1) +
+    // height(x+1,y-1) + height(x+1,y) + height(x+1,y+1) 
+    // ) / 9)
+
     this.buildTerrain(minH, maxH)
     this.visualizeMap()
   }
