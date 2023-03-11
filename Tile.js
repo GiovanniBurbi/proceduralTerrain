@@ -2,13 +2,15 @@ import * as THREE from 'three';
 import { Noise } from './noise';
 
 export class Tile {
-  constructor(center, dim, noiseGen, params) {
+  constructor(id, center, dim, noiseGen, params) {
+    this.id = id
     this.noise = noiseGen
 
     this.threshold = 0
 
     this.center = center
     this.dim = dim
+    this.halfDim = dim / 2
 
     this.coords = [this.center[0]/this.dim, this.center[2]/this.dim]
 
@@ -32,9 +34,12 @@ export class Tile {
 
     this.params = params
 
-    this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
-    this.buildTerrain()
-    this.visualizeMap()
+    this.offset_x_dx = this.center[0] + this.halfDim
+    this.offset_x_sx = this.center[0] - this.halfDim
+    this.offset_z_up = this.center[2] + this.halfDim
+    this.offset_z_down = this.center[2] - this.halfDim
+
+    this.rebuild()
   }
 
   evaluate(v) {
@@ -84,5 +89,63 @@ export class Tile {
 
     this.buildTerrain()
     this.visualizeMap()
+  }
+
+  isCenter(position, centerId) {
+    if (centerId !== this.id) {
+      if (position.x < this.offset_x_dx && position.x > this.offset_x_sx &&
+          position.z < this.offset_z_up && position.z > this.offset_z_down ) {
+            this.signalNewCenter(this.id)
+          }
+    }
+  }
+
+  signalNewCenter(id){
+    const event = new CustomEvent('changeCenterTile', {detail: id})
+    window.dispatchEvent(event)
+  }
+
+  changePosition(newCenterPos, camPos) {
+    const dist = []
+    for (let i = 0; i < this.center.length; i++) {
+      dist.push(this.mesh.position.toArray().slice()[i] - newCenterPos[i])
+    }
+    
+    if (Math.abs(dist[0]) < 2 * this.dim && Math.abs(dist[2]) < 2 * this.dim) return
+    
+    const distDelta = this.dim * 3
+    let origin = this.mesh.position.clone()
+    // let origin = new THREE.Vector3().fromArray(this.center)
+    let dx, dz
+    let newCenter
+
+    if (Math.abs(dist[0]) === 2*this.dim && Math.abs(dist[2]) !== 2*this.dim) {
+      dx = distDelta * Math.sign(dist[0]) * -1
+      newCenter = origin.add(new THREE.Vector3(dx,0,0))
+    }
+
+    if(Math.abs(dist[2]) === 2*this.dim && Math.abs(dist[0]) !== 2*this.dim) {
+      dz = distDelta * Math.sign(dist[2]) * - 1
+      newCenter = origin.add(new THREE.Vector3(0,0,dz))
+    }
+
+    if(Math.abs(dist[2]) === 2*this.dim && Math.abs(dist[0]) === 2*this.dim) {
+      dx = distDelta * Math.sign(dist[0]) * -1
+      dz = distDelta * Math.sign(dist[2]) * -1
+      newCenter = origin.add(new THREE.Vector3(dx,0,dz))
+    }
+
+    this.center = newCenter.toArray()
+    this.updateBorders()
+    this.coords = [this.center[0]/this.dim, this.center[2]/this.dim]
+    this.mesh.position.copy(newCenter)
+    this.rebuild()
+  }
+
+  updateBorders() {
+    this.offset_x_dx = this.center[0] + this.halfDim
+    this.offset_x_sx = this.center[0] - this.halfDim
+    this.offset_z_up = this.center[2] + this.halfDim
+    this.offset_z_down = this.center[2] - this.halfDim
   }
 }

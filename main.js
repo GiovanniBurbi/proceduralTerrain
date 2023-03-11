@@ -1,12 +1,10 @@
 import * as THREE from 'three';
 import './style.css'
 import Stats from 'three/examples/jsm/libs/stats.module'
-// import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
 import { FirstPersonControlsEnchanted } from './FirstPersonControlsEnchanted'
 import { Chunk } from './Chunk';
 import { TileManager } from './TileManager';
 import { GUI } from 'dat.gui'
-import { Tile } from './Tile';
 
 
 let scene, camera, renderer, controls
@@ -17,9 +15,7 @@ let guiParams = {
                   },
                 }
 
-let chunks = []
-
-let chunkDim = 100
+let tileDim = 500
 let terrainCenter = [0, 0, 0]
 let centerId = 4
 const clock = new THREE.Clock()
@@ -54,8 +50,8 @@ function init() {
   scene.add(sunlight)
   // scene.add(nightlight)
 
-  camera.position.set( 0, chunkDim, 100 )
-  camera.rotateX(125)
+  camera.position.set( 0, 60, 0)
+  // camera.rotateX(125)
 
   // camera.position.set( 0, 20, 20 )
 
@@ -66,10 +62,9 @@ function init() {
 
   generatePlainTerrain()
 
-  // controls = new FirstPersonControls( camera, renderer.domElement )
   controls = new FirstPersonControlsEnchanted( camera, renderer.domElement )
   controls.enabled = false
-  controls.movementSpeed = 50
+  controls.movementSpeed = 100
   controls.lookSpeed = 0.1
   // controls.lookVertical = false
 
@@ -86,13 +81,11 @@ function init() {
 
   window.addEventListener('positionChanged', onPositionChange)
 
-  window.addEventListener('changeCenterTile', updateTerrain)
+  window.addEventListener('changeCenterTile', updateTiles)
 }
 
 function onPositionChange() {
-  // console.log(camera.position)
-  // updateTerrain(camera.position)
-  notifyChunks(camera.position.clone().floor())
+  notifyManager(camera.position.clone().floor(), centerId)
 }
 
 function onClick(e) {
@@ -117,7 +110,6 @@ function animate() {
 
 
 function render() {
-  // console.log(camera.position)
   controls.update( clock.getDelta() )
   renderer.render( scene, camera )
 }
@@ -130,37 +122,17 @@ function createGUI() {
 }
 
 function generatePlainTerrain() {
-  // let chunkPos = new THREE.Vector3(-chunkDim, 0, -chunkDim)
-  // for (let i = 0; i < 9; i++) {
-  //   chunks.push(new Chunk(chunkDim, colors[i] , i, chunkPos))
-  //   chunkPos.setX(chunkPos.x + chunkDim)
-  //   if (i === 2 || i === 5) {
-  //     chunkPos.setX(-chunkDim)
-  //     chunkPos.setZ(chunkPos.z + chunkDim)
-  //   }
-
-  //   group.add(chunks[i].mesh)
-  // }
-  const tileManager = new TileManager(chunkDim, scene, gui, guiParams)
-
-  // const tile = new Tile(terrainCenter, chunkDim, gui, guiParams)
-  // group.add(tile.mesh)
-  // group.add(tile.mesh2)
+  tileManager = new TileManager(tileDim, scene, gui, guiParams)
+  tileManager.createTiles(9)
 }
 
-function notifyChunks(newPos) {
-  chunks.forEach(el => {
-    el.checkNewEntries(newPos, centerId)
-  });
+function notifyManager(newPos, centerId) {
+  tileManager.checkNewEntries(newPos, centerId)
 }
 
-function updateTerrain(e) {
+function updateTiles(e) {
   centerId = e.detail
-  terrainCenter = chunks[centerId].center.slice()
-  chunks.forEach(el => {
-    el.changePosition(terrainCenter, camera.position.toArray())
-  });
-
+  tileManager.updateTiles(centerId, camera.position.toArray())
   renderer.render( scene, camera )
 }
 

@@ -15,14 +15,13 @@ export class TileManager {
     this.helpers = []
     this.wireframes = []
 
+    this.centerId = 4
+    this.centerTerrain = [0,0,0]
+
     this.noise = new Noise(params)
 
     this.initGUI(gui, params)
-
-    // this.createTiles(1)
-    this.createTiles(9)
-
-  }
+ }
 
   initGUI(gui, params) {
     this.gui = gui
@@ -70,12 +69,13 @@ export class TileManager {
         for (let tile of this.tiles) {
           tile.mesh.material.wireframe = true
           tile.mesh.material.vertexColors = false
-          console.log(tile.mesh)
+          this.scene.background = new THREE.Color(0x000000)
         }
       } else {
         for (let tile of this.tiles) {
           tile.mesh.material.wireframe = false
           tile.mesh.material.vertexColors = true
+          this.scene.background = new THREE.Color(0xaaaaaa)
         }
       }
     }
@@ -104,7 +104,7 @@ export class TileManager {
     rollup.add(this.params.noise, 'offsetY', 0.0, 50, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
-    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 50, 1).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 150, 1).onChange(funcChange)
     terrainRollup.add(this.params.terrain, 'showNormals').onFinishChange(funcChange2)
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
   }
@@ -117,7 +117,7 @@ export class TileManager {
     }
     
     for(let i = 0; i < num_chunks; i++){
-      this.tiles.push(new Tile(tilePos, this.tileDim, this.noise, this.params))
+      this.tiles.push(new Tile(i, tilePos, this.tileDim, this.noise, this.params))
       tilePos[0] = tilePos[0] + this.tileDim
       if (i === 2 || i === 5) {
         tilePos[0] = -this.tileDim
@@ -125,5 +125,22 @@ export class TileManager {
     }
     this.tileGroup.add(this.tiles[i].mesh)
     }
+  }
+
+  checkNewEntries(newPos, centerId) {
+    this.tiles.forEach(el => {
+      el.isCenter(newPos, centerId)
+    });
+  }
+
+  updateTiles(newCenterId, camPos) {
+    this.centerId = newCenterId
+    this.centerTerrain = this.tiles[this.centerId].mesh.position.toArray().slice()
+    this.tiles.forEach(el => {
+      el.changePosition(this.centerTerrain, camPos)
+      if (this.params.terrain.showNormals) {
+        this.updateNormals()
+      }
+    });
   }
 }
