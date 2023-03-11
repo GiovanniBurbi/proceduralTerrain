@@ -37,7 +37,11 @@ export class Tile {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
     for(let i = 0; i < this.heightMap.length; i++){
-      vertices[i * 3 + 2] = this.heightMap[i] * (maxH - minH) + minH
+      if (maxH === 0 && minH === 0){
+        vertices[i * 3 + 2] = this.heightMap[i]
+      } else {
+        vertices[i * 3 + 2] = this.heightMap[i] * (maxH - minH) + minH
+      }
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))

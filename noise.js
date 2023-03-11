@@ -18,8 +18,11 @@ export class Noise {
     const halfH = width / 2
 
     for(let i = 0; i < this.params.noise.octaves; i++){
-      let xOff = (x - halfW + this.params.noise.offsetX  + this.randOff) / this.params.noise.scale * frequency
-      let yOff = (y - halfH + this.params.noise.offsetY + this.randOff) / this.params.noise.scale * frequency
+      // let xOff = ((x + coords[0] * (width - 1)+ this.params.noise.offsetX + this.randOff) - halfW) / this.params.noise.scale * frequency 
+      // let yOff = ((y + coords[1] * (width - 1) + this.params.noise.offsetY + this.randOff) - halfH) / this.params.noise.scale * frequency 
+
+      let xOff = ((x + coords[0] * (width - 1)) - halfW) / this.params.noise.scale * frequency + this.params.noise.offsetX
+      let yOff = ((y + coords[1] * (width - 1)) - halfH) / this.params.noise.scale * frequency + this.params.noise.offsetY
 
       noiseValue = perlin(xOff, yOff) * 2 - 1
       noiseHeight += noiseValue * amplitude
@@ -34,8 +37,16 @@ export class Noise {
   generateNoiseMap(coords, width, dim) {
     const heights = new Array(dim)
 
-    let maxNoiseHeight = Number.NEGATIVE_INFINITY 
-    let minNoiseHeight = Number.POSITIVE_INFINITY
+    let maxLocalNoiseHeight = Number.NEGATIVE_INFINITY 
+    let minLocalNoiseHeight = Number.POSITIVE_INFINITY
+
+    let maxPossibleHeight = 0
+    let amplitude = 1
+
+    for (let i = 0; i < this.params.noise.octaves; i++){
+      maxPossibleHeight += amplitude
+      amplitude *= this.params.noise.persistance
+    }
 
     for (let y = 0; y < width; y++){
       for(let x = 0; x < width; x++){
@@ -43,18 +54,21 @@ export class Noise {
 
         heights[y * width + x] = noiseValue 
 
-        if (noiseValue > maxNoiseHeight) {
-          maxNoiseHeight = noiseValue
+        if (noiseValue > maxLocalNoiseHeight) {
+          maxLocalNoiseHeight = noiseValue
         }
-        if (noiseValue < minNoiseHeight) {
-          minNoiseHeight = noiseValue
+        if (noiseValue < minLocalNoiseHeight) {
+          minLocalNoiseHeight = noiseValue
         }
       }
     }
 
     for (let y = 0; y < width; y++){
       for(let x = 0; x < width; x++){
-        heights[y * width + x] = math.invLerp(heights[y * width + x], minNoiseHeight, maxNoiseHeight)
+        // heights[y * width + x] = math.invLerp(heights[y * width + x], minLocalNoiseHeight, maxLocalNoiseHeight)
+
+        let normHeight = (heights[y * width + x] + 1) / (2 * maxPossibleHeight / 1.75)
+        heights[ y * width + x] = normHeight
       }
     }
     console.log(heights.length)

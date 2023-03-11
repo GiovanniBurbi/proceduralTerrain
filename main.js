@@ -17,14 +17,7 @@ let guiParams = {
                   },
                 }
 
-
 let chunks = []
-let colors = ['#FF69B4', '#0000FF', '#808080',
-              '#008000', '#800080', '#FF0000',
-              '#F0F8FF', '#B22222', '#FFFACD'
-            ]
-// let colors = ['#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', '#FF69B4', 
-//               '#FF69B4', '#FF69B4', '#FF69B4']
 
 let chunkDim = 100
 let terrainCenter = [0, 0, 0]
