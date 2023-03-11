@@ -13,7 +13,7 @@ export class Noise {
     }
   }
 
-  computeHeight(x, y, octaveOffset, width, coords) {
+  computeHeight(x, y, width, coords) {
     let amplitude = 1
     let frequency = 1
     let noiseHeight = 0
@@ -26,8 +26,11 @@ export class Noise {
     // const halfH = 0
 
     for(let i = 0; i < this.params.noise.octaves; i++){
-      let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX + this.octaveOffset[i].x) - halfW) / this.params.noise.scale * frequency
-      let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY + this.octaveOffset[i].y) - halfH) / this.params.noise.scale * frequency
+      // let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX + this.octaveOffset[i].x) - halfW) / this.params.noise.scale * frequency
+      // let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY + this.octaveOffset[i].y) - halfH) / this.params.noise.scale * frequency
+
+      let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX) - halfW) / this.params.noise.scale * frequency + this.octaveOffset[i].x
+      let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY) - halfH) / this.params.noise.scale * frequency + this.octaveOffset[i].y
 
       noiseValue = perlin(xOff, yOff) * 2 - 1
       noiseHeight += noiseValue * amplitude
@@ -57,7 +60,7 @@ export class Noise {
 
     for (let y = 0; y < width; y++){
       for(let x = 0; x < width; x++){
-        let noiseValue = this.computeHeight(x, y, octaveOffset, width, coords)
+        let noiseValue = this.computeHeight(x, y, width, coords)
 
         heights[y * width + x] = noiseValue 
 
@@ -75,7 +78,7 @@ export class Noise {
         // local normalization
         // heights[y * width + x] = math.invLerp(heights[y * width + x], minLocalNoiseHeight, maxLocalNoiseHeight)
 
-        let normHeight = (heights[y * width + x] + 1) / (maxPossibleHeight)
+        let normHeight = (heights[y * width + x] + 1) / (2*maxPossibleHeight/1.65)
         heights[ y * width + x] = normHeight
       }
     }

@@ -38,15 +38,14 @@ export class TileManager {
     }
 
     this.params.terrain = {
-      maxHeight: 20,
-      minHeight: 0,
+      maxHeight: 10,
       showNormals: false,
       showWireframe: false
     }
 
     const onParamsChange = () =>  {
       for (let tile of this.tiles){
-        tile.rebuild(this.params.terrain.minHeight, this.params.terrain.maxHeight)
+        tile.rebuild()
         this.updateNormals()
       }
     }
@@ -98,13 +97,12 @@ export class TileManager {
     rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
     rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'scale', 0.3, 30).onChange(funcChange)
+    rollup.add(this.params.noise, 'scale', 5, 30).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetX', 0.0, 50, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetY', 0.0, 50, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
-    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 30, 1).onChange(funcChange)
-    terrainRollup.add(this.params.terrain, 'minHeight', -30, 0).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 50, 1).onChange(funcChange)
     terrainRollup.add(this.params.terrain, 'showNormals').onFinishChange(funcChange2)
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
   }

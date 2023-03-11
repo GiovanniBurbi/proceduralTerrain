@@ -5,6 +5,8 @@ export class Tile {
   constructor(center, dim, noiseGen, params) {
     this.noise = noiseGen
 
+    this.threshold = 0
+
     this.center = center
     this.dim = dim
 
@@ -28,26 +30,27 @@ export class Tile {
 
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
+    this.params = params
+
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
-    this.buildTerrain(params.terrain.minHeight, params.terrain.maxHeight)
+    this.buildTerrain()
     this.visualizeMap()
   }
 
-  buildTerrain(minH, maxH) {
+  evaluate(v) {
+    //  math curve for water, use some sort of spline bezier
+      if (v < this.threshold) {
+        return 0
+      } else {
+        return v
+      }
+  }
+
+  buildTerrain() {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
-    this.minH = minH
-    this.maxH = maxH
-
-    for(let i = 0; i < this.heightMap.length; i++){
-      if (maxH === 0 && minH === 0){
-        vertices[i * 3 + 2] = this.heightMap[i]
-      } else {
-        vertices[i * 3 + 2] = this.heightMap[i] * (maxH - minH) + minH
-        if (vertices[i * 3 + 2] < -5) {
-          vertices[i * 3 + 2] = 0
-        }
-      }
+    for(let i = 0; i < this.heightMap.length; i++){      
+      vertices[i * 3 + 2] = this.evaluate(this.heightMap[i]) * this.params.terrain.maxHeight
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -63,8 +66,8 @@ export class Tile {
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
         let c = this.heightMap[y * this.width + x]
-        if (this.heightMap[y * this.width + x] * (this.maxH - this.minH) + this.minH < -5){
-          colors.push(0,0,1)
+        if (c < 0.3){
+          colors.push(c,c,c)
         } else {
           colors.push(c,c,c)
         }
@@ -76,10 +79,10 @@ export class Tile {
     this.mesh.geometry.materialNeedUpdate = true
   }
 
-  rebuild(minH, maxH) {
+  rebuild() {
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
 
-    this.buildTerrain(minH, maxH)
+    this.buildTerrain()
     this.visualizeMap()
   }
 }
