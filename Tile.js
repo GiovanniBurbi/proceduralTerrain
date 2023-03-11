@@ -36,11 +36,17 @@ export class Tile {
   buildTerrain(minH, maxH) {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
+    this.minH = minH
+    this.maxH = maxH
+
     for(let i = 0; i < this.heightMap.length; i++){
       if (maxH === 0 && minH === 0){
         vertices[i * 3 + 2] = this.heightMap[i]
       } else {
         vertices[i * 3 + 2] = this.heightMap[i] * (maxH - minH) + minH
+        if (vertices[i * 3 + 2] < -5) {
+          vertices[i * 3 + 2] = 0
+        }
       }
     }
 
@@ -57,7 +63,11 @@ export class Tile {
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
         let c = this.heightMap[y * this.width + x]
-        colors.push(c,c,c)
+        if (this.heightMap[y * this.width + x] * (this.maxH - this.minH) + this.minH < -5){
+          colors.push(0,0,1)
+        } else {
+          colors.push(c,c,c)
+        }
       }
     }
 
