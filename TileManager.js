@@ -11,6 +11,7 @@ export class TileManager {
     this.scene = scene
     this.scene.add(this.tileGroup)
     this.helperGroup = new THREE.Group()
+    this.scene.add(this.helperGroup)
     this.helpers = []
     this.wireframes = []
 
@@ -46,14 +47,22 @@ export class TileManager {
     const onParamsChange = () =>  {
       for (let tile of this.tiles){
         tile.rebuild(this.params.terrain.minHeight, this.params.terrain.maxHeight)
+        this.updateNormals()
+        this.updateWireframe()
       }
     }
 
     const onNormalViewChange = () => {
       if (this.params.terrain.showNormals) {
-        this.scene.add(this.helperGroup)
+        for (let i = 0; i < this.tiles.length; i++) {
+          this.helpers[i] = new VertexNormalsHelper( this.tiles[i].mesh, 1, 0xff0000 );
+          this.helperGroup.add(this.helpers[i])
+        }
+        
       } else {
-        this.scene.remove(this.helperGroup)
+        for (let i = 0; i < this.helpers.length; i++) {
+          this.helperGroup.remove(this.helpers[i])
+        }
       }
     }
 
@@ -77,6 +86,30 @@ export class TileManager {
     }
 
     this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange)
+  }
+
+  updateWireframe() {
+    if (this.params.terrain.showWireframe) {
+      let i = 0
+        for (let tile of this.tiles) {
+          tile.mesh.remove(this.wireframes[i])
+          var geo = new THREE.EdgesGeometry( tile.mesh.geometry )
+          var mat = new THREE.LineBasicMaterial( { color: 0xffffff } )
+          this.wireframes[i] = new THREE.LineSegments( geo, mat )
+          tile.mesh.add(this.wireframes[i])
+          i++
+        }
+    }
+  }
+
+  updateNormals() {
+    if (this.params.terrain.showNormals) {
+      for (let i = 0; i < this.tiles.length; i++) {
+        this.helperGroup.remove(this.helpers[i])
+        this.helpers[i] = new VertexNormalsHelper( this.tiles[i].mesh, 1, 0xff0000 );
+        this.helperGroup.add(this.helpers[i])
+      }
+    }
   }
 
   createNoiseRollup(funcChange, funcChange2, funcChange3) {
@@ -110,8 +143,6 @@ export class TileManager {
         tilePos[2] = tilePos[2] + this.tileDim
     }
     this.tileGroup.add(this.tiles[i].mesh)
-    this.helpers[i] = new VertexNormalsHelper( this.tiles[i].mesh, 1, 0xff0000 );
-    this.helperGroup.add(this.helpers[i])
     }
   }
 }
