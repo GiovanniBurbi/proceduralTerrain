@@ -22,17 +22,13 @@ export class Noise {
 
     const halfW = width / 2
     const halfH = width / 2
-    // const halfW = 0
-    // const halfH = 0
 
     for(let i = 0; i < this.params.noise.octaves; i++){
-      // let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX + this.octaveOffset[i].x) - halfW) / this.params.noise.scale * frequency
-      // let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY + this.octaveOffset[i].y) - halfH) / this.params.noise.scale * frequency
 
       let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX) - halfW) / this.params.noise.scale * frequency + this.octaveOffset[i].x
       let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY) - halfH) / this.params.noise.scale * frequency + this.octaveOffset[i].y
 
-      noiseValue = perlin(xOff, yOff) * 2 - 1
+      noiseValue = this.noise(xOff, yOff)  * 2 - 1
       noiseHeight += noiseValue * amplitude
 
       amplitude *= this.params.noise.persistance
@@ -50,8 +46,6 @@ export class Noise {
 
     let maxPossibleHeight = 0
     let amplitude = 1
-
-    let octaveOffset = new Array(this.params.noise.octaves)
 
     for (let i = 0; i < this.params.noise.octaves; i++){
       maxPossibleHeight += amplitude
@@ -83,5 +77,11 @@ export class Noise {
       }
     }
     return heights
+  }
+
+  noise(x, y) {
+    if (this.params.noise.type === 'perlin') {
+      return perlin(x, y)
+    }
   }
 }

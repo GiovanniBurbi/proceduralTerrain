@@ -29,6 +29,7 @@ export class TileManager {
     this.params = params
 
     this.params.noise = {
+      type: 'perlin',
       octaves: 4,
       persistance: 0.5,
       lacunarity: 2,
@@ -94,6 +95,7 @@ export class TileManager {
 
   createNoiseRollup(funcChange, funcChange2, funcChange3) {
     const rollup = this.gui.addFolder('Noise')
+    rollup.add(this.params.noise, 'type', ['perlin']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
     rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)
