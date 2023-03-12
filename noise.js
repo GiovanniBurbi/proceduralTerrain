@@ -1,4 +1,3 @@
-import { math } from './math'
 import perlin from 'https://cdn.jsdelivr.net/gh/mikechambers/es6-perlin-module/perlin.js'
 import { createNoise2D } from 'simplex-noise'
 import { Vector2 } from 'three'
@@ -39,16 +38,8 @@ export const noise = (function() {
         perlin: new PerlinWrapper(),
       }
     }
-
-    computeHeight(x, y, width, coords, noiseFunc, method) {
-      if (method === 1) {
-        return this.computeMethod1(x, y, width, coords, noiseFunc)
-      } else {
-        return this.computeMethod2(x, y, width, coords, noiseFunc)
-      }
-    }
   
-    computeMethod2(x, y, width, coords, noiseFunc) {
+    computeHeight(x, y, width, coords, noiseFunc) {
       let amplitude = 1
       let frequency = 1
       let noiseHeight = 0
@@ -91,7 +82,7 @@ export const noise = (function() {
   
       for (let y = 0; y < width; y++){
         for(let x = 0; x < width; x++){
-          let noiseValue = this.computeHeight(x, y, width, coords, noiseFunc, 1)
+          let noiseValue = this.computeHeight(x, y, width, coords, noiseFunc)
   
           heights[y * width + x] = noiseValue 
   
@@ -104,39 +95,16 @@ export const noise = (function() {
         }
       }
   
-      // for (let y = 0; y < width; y++){
-      //   for(let x = 0; x < width; x++){
-      //     // local normalization
-      //     // heights[y * width + x] = math.invLerp(heights[y * width + x], minLocalNoiseHeight, maxLocalNoiseHeight)
+      for (let y = 0; y < width; y++){
+        for(let x = 0; x < width; x++){
+          // local normalization
+          // heights[y * width + x] = math.invLerp(heights[y * width + x], minLocalNoiseHeight, maxLocalNoiseHeight)
   
-      //     let normHeight = (heights[y * width + x] + 1) / (2*maxPossibleHeight/1.65)
-      //     heights[ y * width + x] = normHeight
-      //   }
-      // }
-      return heights
-    }
-  
-    computeMethod1(x, y, width, coords, noiseFunc) {
-      const halfW = width / 2
-      const halfH = width / 2
-
-      const xs = (x + coords[0] * (width - 1) + this.params.noise.offsetX - halfW) / this.params.noise.scale 
-      const ys = (y + coords[1] * (width - 1) - this.params.noise.offsetY - halfH) / this.params.noise.scale
-      const G = 2.0 ** (- this.params.noise.persistance)
-      let amplitude = 1.0
-      let frequency = 1.0
-      let normalization = 0
-      let total = 0
-      for (let o = 0; o < this.params.noise.octaves; o++) {
-        const noiseValue = noiseFunc.noiseValue(
-            xs * frequency, ys * frequency) * 0.5 + 0.5;
-        total += noiseValue * amplitude;
-        normalization += amplitude;
-        amplitude *= G;
-        frequency *= this.params.noise.lacunarity;
+          let normHeight = (heights[y * width + x] + 1) / (2*maxPossibleHeight/1.65)
+          heights[ y * width + x] = normHeight
+        }
       }
-      total /= normalization;
-      return total
+      return heights
     }
   }
 
