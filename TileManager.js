@@ -104,7 +104,7 @@ export class TileManager {
     rollup.add(this.params.noise, 'offsetY', 0.0, 50, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
-    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 150, 1).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 60, 1).onChange(funcChange)
     terrainRollup.add(this.params.terrain, 'showNormals').onFinishChange(funcChange2)
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
   }
