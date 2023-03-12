@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Noise } from './noise';
 
 export class Tile {
   constructor(id, center, dim, noiseGen, params) {

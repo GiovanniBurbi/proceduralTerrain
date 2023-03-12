@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import { Tile } from "./Tile"
-import { Noise } from "./noise"
+import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
 
 export class TileManager {
@@ -18,7 +18,7 @@ export class TileManager {
     this.centerId = 4
     this.centerTerrain = [0,0,0]
 
-    this.noise = new Noise(params)
+    this.noise = new noise.NoiseGenerator(params)
 
     this.initGUI(gui, params)
  }
@@ -95,7 +95,7 @@ export class TileManager {
 
   createNoiseRollup(funcChange, funcChange2, funcChange3) {
     const rollup = this.gui.addFolder('Noise')
-    rollup.add(this.params.noise, 'type', ['perlin']).onFinishChange(funcChange)
+    rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
     rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1, 10, 0.1).onChange(funcChange)

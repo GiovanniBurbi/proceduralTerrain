@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import './style.css'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { FirstPersonControlsEnchanted } from './FirstPersonControlsEnchanted'
-import { Chunk } from './Chunk';
+import { Chunk } from './scrapped/Chunk';
 import { TileManager } from './TileManager';
 import { GUI } from 'dat.gui'
 
@@ -89,7 +89,7 @@ function onPositionChange() {
 }
 
 function onClick(e) {
-  e.preventDefault();
+  // e.preventDefault();
   if (e.which == 2) {
     controls.enabled = !controls.enabled
   }
