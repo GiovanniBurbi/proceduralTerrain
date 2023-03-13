@@ -1,5 +1,6 @@
 import perlin from 'https://cdn.jsdelivr.net/gh/mikechambers/es6-perlin-module/perlin.js'
 import { createNoise2D } from 'simplex-noise'
+import 'https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js'
 import { Vector2 } from 'three'
 import alea from 'alea'
 
@@ -16,10 +17,12 @@ export const noise = (function() {
 
   class SimplexWrapper {
     constructor(seed) {
+      // this.simplex = new SimplexNoise(seed);
       this.simplex = createNoise2D(alea(seed));
     }
 
     noiseValue(x, y) {
+      // return this.simplex.noise2D(x, y)
       return this.simplex(x, y)
     }
   }
@@ -28,13 +31,13 @@ export const noise = (function() {
     constructor(params) {
       this.params = params
       this.octaveOffset = []
-      for (let i = 0; i < 10; i++){
+      for (let i = 0; i < 20; i++){
         let offX = Math.random() * 200000 - 100000
         let offY = Math.random() * 200000 - 100000
         this.octaveOffset[i] = new Vector2(offX, offY)
       }
       this.noise = {
-        simplex: new SimplexWrapper(200),
+        simplex: new SimplexWrapper(1),
         perlin: new PerlinWrapper(),
       }
     }
@@ -48,13 +51,17 @@ export const noise = (function() {
   
       const halfW = width / 2
       const halfH = width / 2
-  
+
+      const G = 2.0 ** (- this.params.noise.persistance)
+      let norm = 0
+
+      const yp = (y + coords[1] * (width - 1) - this.params.noise.offsetY - halfH) / this.params.noise.scale
+      const xp = (x + coords[0] * (width - 1) + this.params.noise.offsetX - halfW) / this.params.noise.scale
+      
       for(let i = 0; i < this.params.noise.octaves; i++){
-  
-        let xOff = ((x + coords[0] * (width - 1) + this.params.noise.offsetX) - halfW) / this.params.noise.scale * frequency + this.octaveOffset[i].x
-        let yOff = ((y + coords[1] * (width - 1) - this.params.noise.offsetY) - halfH) / this.params.noise.scale * frequency + this.octaveOffset[i].y
-  
-        noiseValue = noiseFunc.noiseValue(xOff, yOff)
+        
+        noiseValue = noiseFunc.noiseValue(xp * frequency + this.octaveOffset[i].x, yp * frequency + this.octaveOffset[i].y)
+        // noiseValue = noiseFunc.noiseValue(xp * frequency + this.octaveOffset[i].x, yp * frequency + this.octaveOffset[i].y) * this.octaveOffset * 0.5 + 0.5
         noiseHeight += noiseValue * amplitude
   
         amplitude *= this.params.noise.persistance
@@ -62,8 +69,9 @@ export const noise = (function() {
       }
   
       return noiseHeight
+      // return Math.pow(noiseHeight, this.params.noise.exponentiation) * this.params.terrain.maxHeight
     }
-  
+
     generateNoiseMap(coords, width, dim) {
       const heights = new Array(dim)
   
@@ -100,7 +108,7 @@ export const noise = (function() {
           // local normalization
           // heights[y * width + x] = math.invLerp(heights[y * width + x], minLocalNoiseHeight, maxLocalNoiseHeight)
   
-          let normHeight = (heights[y * width + x] + 1) / (2*maxPossibleHeight/1.65)
+          let normHeight = (heights[y * width + x] + 1) / (2*maxPossibleHeight)
           heights[ y * width + x] = normHeight
         }
       }

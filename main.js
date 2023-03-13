@@ -14,8 +14,7 @@ let guiParams = {
                   },
                 }
 
-let tileDim = 200
-let terrainCenter = [0, 0, 0]
+let tileDim = 100
 let centerId = 4
 const clock = new THREE.Clock()
 
@@ -49,8 +48,8 @@ function init() {
   scene.add(sunlight)
   // scene.add(nightlight)
 
-  camera.position.set( 0, 60, 0)
-  // camera.rotateX(125)
+  camera.position.set( 0, 50, 0)
+  // camera.rotateX(5)
 
   // camera.position.set( 0, 20, 20 )
 
@@ -122,6 +121,7 @@ function createGUI() {
 
 function generatePlainTerrain() {
   tileManager = new TileManager(tileDim, scene, gui, guiParams)
+  // tileManager.createTiles(1)
   tileManager.createTiles(9)
 }
 

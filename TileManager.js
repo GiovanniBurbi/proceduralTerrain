@@ -18,9 +18,9 @@ export class TileManager {
     this.centerId = 4
     this.centerTerrain = [0,0,0]
 
-    this.noise = new noise.NoiseGenerator(params)
-
+    
     this.initGUI(gui, params)
+    this.noise = new noise.NoiseGenerator(params)
  }
 
   initGUI(gui, params) {
@@ -28,17 +28,18 @@ export class TileManager {
     this.params = params
 
     this.params.noise = {
-      type: 'perlin',
-      octaves: 4,
-      persistance: 0.5,
+      type: 'simplex',
+      octaves: 6,
+      persistance: 0.49,
       lacunarity: 2,
-      scale: 8,
+      exponentiation: 3,
+      scale: 95.0,
       offsetX: 0,
       offsetY: 0,
     }
 
     this.params.terrain = {
-      maxHeight: 10,
+      maxHeight: 300.0,
       showNormals: false,
       showWireframe: false
     }
@@ -96,15 +97,16 @@ export class TileManager {
   createNoiseRollup(funcChange, funcChange2, funcChange3) {
     const rollup = this.gui.addFolder('Noise')
     rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
-    rollup.add(this.params.noise, 'octaves', 1, 10, 1) .onChange(funcChange)
-    rollup.add(this.params.noise, 'persistance', 0.1, 1.0, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'lacunarity', 1, 4.0, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'scale', 5, 100).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetX', 0.0, 50, 0.1).onChange(funcChange)
-    rollup.add(this.params.noise, 'offsetY', 0.0, 50, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'octaves', 1, 20, 1) .onChange(funcChange)
+    rollup.add(this.params.noise, 'persistance', 0.1, 1.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'lacunarity', 0.01, 4.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'exponentiation', 0.1, 10.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'scale', 5.0, 200.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetX', 0.0, 250, 0.1).onChange(funcChange)
+    rollup.add(this.params.noise, 'offsetY', 0.0, 250, 0.1).onChange(funcChange)
 
     const terrainRollup = this.gui.addFolder('Terrain')
-    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 100, 1).onChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'maxHeight', 0, 1024).onChange(funcChange)
     terrainRollup.add(this.params.terrain, 'showNormals').onFinishChange(funcChange2)
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
   }

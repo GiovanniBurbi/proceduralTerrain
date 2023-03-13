@@ -13,7 +13,7 @@ export class Tile {
 
     this.coords = [this.center[0]/this.dim, this.center[2]/this.dim]
 
-    this.segments = 30
+    this.segments = 32
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
     this.material = new THREE.MeshStandardMaterial( {
       wireframe: false,
@@ -53,8 +53,9 @@ export class Tile {
   buildTerrain() {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
-    for(let i = 0; i < this.heightMap.length; i++){      
-      vertices[i * 3 + 2] = this.evaluate(this.heightMap[i]) * this.params.terrain.maxHeight
+    for(let i = 0; i < this.heightMap.length; i++){
+      // vertices[i * 3 + 2] = this.evaluate(this.heightMap[i])
+      vertices[i * 3 + 2] = Math.pow(this.evaluate(this.heightMap[i]), this.params.noise.exponentiation) * this.params.terrain.maxHeight
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -70,11 +71,12 @@ export class Tile {
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
         let c = this.heightMap[y * this.width + x]
-        if (c < 0.3){
-          colors.push(c,c,c)
-        } else {
-          colors.push(c,c,c)
-        }
+        // if (c < 0.3){
+        //   colors.push(c,c,c)
+        // } else {
+        //   colors.push(c,c,c)
+        // }
+        colors.push(0.2,0.2,0.2)
       }
     }
 
