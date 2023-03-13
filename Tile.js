@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 
 export class Tile {
-  constructor(id, center, dim, noiseGen, params) {
+  constructor(id, center, dim, noiseGen, params, colorGenerator) {
     this.id = id
     this.noise = noiseGen
+    this.colorGen = colorGenerator
 
     this.center = center
     this.dim = dim
@@ -41,7 +42,24 @@ export class Tile {
 
   selectColor(v) {
     //  math curve for water, use some sort of spline bezier
-    return v
+    // let r, g, b
+    // if (v < 0.2) {
+    //   r = 0
+    //   g = 0
+    //   b = 1
+    // } else {
+    //   if (v < 0.4) {
+    //     r = 0
+    //     g = 1
+    //     b = 0
+    //   } else {
+    //     r = 0.4
+    //     g = 0.4
+    //     b = 0.4
+    //   }
+    // } 
+    // return [r, g, b]
+    return [0.2, 0.2, 0.2]
   }
 
   buildTerrain() {
@@ -49,7 +67,8 @@ export class Tile {
 
     for(let i = 0; i < this.heightMap.length; i++){
 
-      vertices[i * 3 + 2] = Math.pow(this.heightMap[i], this.params.noise.exponentiation) * this.params.terrain.maxHeight
+      // vertices[i * 3 + 2] = Math.pow(this.heightMap[i], this.params.noise.exponentiation) * this.params.terrain.maxHeight
+      vertices[i * 3 + 2] = this.heightMap[i]
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -59,15 +78,17 @@ export class Tile {
     this.mesh.geometry.computeVertexNormals();
   }
 
-  visualizeMap() {
-    let colors = []
+  colorTerrain() {
+    // let colors = []
 
-    for (let y = 0; y < this.width; y++){
-      for(let x = 0; x < this.width; x++){
-        let c = this.selectColor(this.heightMap[y * this.width + x])
-        colors.push(0.2,0.2,0.2)
-      }
-    }
+    // for (let y = 0; y < this.width; y++){
+    //   for(let x = 0; x < this.width; x++){
+    //     let color = this.selectColor(this.heightMap[y * this.width + x])
+    //     colors.push(color[0], color[1], color[2])
+    //   }
+    // }
+
+    const colors = this.colorGen.colorMap(this.heightMap, this.width) 
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
@@ -78,7 +99,7 @@ export class Tile {
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
 
     this.buildTerrain()
-    this.visualizeMap()
+    this.colorTerrain()
   }
 
   isCenter(position, centerId) {

@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { Tile } from "./Tile"
 import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
+import { ColorGenerator } from "./ColorGenerator"
 
 export class TileManager {
   constructor(tileDim, scene, gui, params) {
@@ -17,6 +18,8 @@ export class TileManager {
 
     this.centerId = 4
     this.centerTerrain = [0,0,0]
+
+    this.ColorGen = new ColorGenerator(params)
 
     
     this.initGUI(gui, params)
@@ -98,9 +101,9 @@ export class TileManager {
     const rollup = this.gui.addFolder('Noise')
     rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 20, 1) .onChange(funcChange)
-    rollup.add(this.params.noise, 'persistance', 0.1, 1.0).onChange(funcChange)
-    rollup.add(this.params.noise, 'lacunarity', 0.01, 4.0).onChange(funcChange)
-    rollup.add(this.params.noise, 'exponentiation', 0.1, 10.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'persistance', 0.4, 1.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'lacunarity', 1.0, 3.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'exponentiation', 2.0, 5.0).onChange(funcChange)
     rollup.add(this.params.noise, 'scale', 5.0, 200.0).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetX', 0.0, 250, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetY', 0.0, 250, 0.1).onChange(funcChange)
@@ -119,7 +122,7 @@ export class TileManager {
     }
     
     for(let i = 0; i < num_chunks; i++){
-      this.tiles.push(new Tile(i, tilePos, this.tileDim, this.noise, this.params))
+      this.tiles.push(new Tile(i, tilePos, this.tileDim, this.noise, this.params, this.ColorGen))
       tilePos[0] = tilePos[0] + this.tileDim
       if (i === 2 || i === 5) {
         tilePos[0] = -this.tileDim
