@@ -40,18 +40,12 @@ function init() {
   scene.background = new THREE.Color(0xaaaaaa)
 
   const sunlight = new THREE.DirectionalLight( 0xfff3e3)
-  const nightlight = new THREE.DirectionalLight( 0xc2c1e3)
   sunlight.position.y = 100
-  nightlight.position.y = 100
   sunlight.castShadow = false
-  nightlight.castShadow = false
   scene.add(sunlight)
-  // scene.add(nightlight)
 
   camera.position.set( 0, 50, 0)
   // camera.rotateX(5)
-
-  // camera.position.set( 0, 20, 20 )
 
   renderer = new THREE.WebGLRenderer({antialias: true,})
   renderer.setPixelRatio( window.devicePixelRatio )

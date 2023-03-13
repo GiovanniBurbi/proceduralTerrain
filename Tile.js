@@ -5,8 +5,6 @@ export class Tile {
     this.id = id
     this.noise = noiseGen
 
-    this.threshold = 0
-
     this.center = center
     this.dim = dim
     this.halfDim = dim / 2
@@ -41,21 +39,17 @@ export class Tile {
     this.rebuild()
   }
 
-  evaluate(v) {
+  selectColor(v) {
     //  math curve for water, use some sort of spline bezier
-      if (v < this.threshold) {
-        return 0
-      } else {
-        return v
-      }
+    return v
   }
 
   buildTerrain() {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
     for(let i = 0; i < this.heightMap.length; i++){
-      // vertices[i * 3 + 2] = this.evaluate(this.heightMap[i])
-      vertices[i * 3 + 2] = Math.pow(this.evaluate(this.heightMap[i]), this.params.noise.exponentiation) * this.params.terrain.maxHeight
+
+      vertices[i * 3 + 2] = Math.pow(this.heightMap[i], this.params.noise.exponentiation) * this.params.terrain.maxHeight
     }
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
@@ -70,12 +64,7 @@ export class Tile {
 
     for (let y = 0; y < this.width; y++){
       for(let x = 0; x < this.width; x++){
-        let c = this.heightMap[y * this.width + x]
-        // if (c < 0.3){
-        //   colors.push(c,c,c)
-        // } else {
-        //   colors.push(c,c,c)
-        // }
+        let c = this.selectColor(this.heightMap[y * this.width + x])
         colors.push(0.2,0.2,0.2)
       }
     }

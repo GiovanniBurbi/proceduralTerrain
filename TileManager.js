@@ -39,7 +39,7 @@ export class TileManager {
     }
 
     this.params.terrain = {
-      maxHeight: 300.0,
+      maxHeight: 500.0,
       showNormals: false,
       showWireframe: false
     }
