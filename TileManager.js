@@ -32,17 +32,17 @@ export class TileManager {
 
     this.params.noise = {
       type: 'simplex',
-      octaves: 6,
-      persistance: 0.49,
+      octaves: 8,
+      persistance: 0.4,
       lacunarity: 2,
       exponentiation: 3,
-      scale: 95.0,
+      scale: 65.0,
       offsetX: 0,
       offsetY: 0,
     }
 
     this.params.terrain = {
-      maxHeight: 500.0,
+      maxHeight: 700.0,
       showNormals: false,
       showWireframe: false
     }
@@ -101,7 +101,7 @@ export class TileManager {
     const rollup = this.gui.addFolder('Noise')
     rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 20, 1) .onChange(funcChange)
-    rollup.add(this.params.noise, 'persistance', 0.4, 1.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'persistance', 0.25, 1.0).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1.0, 3.0).onChange(funcChange)
     rollup.add(this.params.noise, 'exponentiation', 2.0, 5.0).onChange(funcChange)
     rollup.add(this.params.noise, 'scale', 5.0, 200.0).onChange(funcChange)

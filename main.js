@@ -14,7 +14,7 @@ let guiParams = {
                   },
                 }
 
-let tileDim = 100
+let tileDim = 300
 let centerId = 4
 const clock = new THREE.Clock()
 
@@ -56,7 +56,7 @@ function init() {
 
   controls = new FirstPersonControlsEnchanted( camera, renderer.domElement )
   controls.enabled = false
-  controls.movementSpeed = 60
+  controls.movementSpeed = 120
   controls.lookSpeed = 0.1
   // controls.lookVertical = false
 
