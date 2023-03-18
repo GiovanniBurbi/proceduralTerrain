@@ -20,7 +20,6 @@ export class TileManager {
     this.centerTerrain = [0,0,0]
 
     this.ColorGen = new ColorGenerator(params)
-
     
     this.initGUI(gui, params)
     this.noise = new noise.NoiseGenerator(params)
@@ -50,8 +49,15 @@ export class TileManager {
     const onParamsChange = () =>  {
       for (let tile of this.tiles){
         tile.rebuild()
-        this.updateNormals()
       }
+
+      this.fixNormals()
+
+      this.tiles.forEach(el => {
+        if (this.params.terrain.showNormals) {
+          this.updateNormals()
+        }
+      })
     }
 
     const onNormalViewChange = () => {
@@ -130,6 +136,8 @@ export class TileManager {
     }
     this.tileGroup.add(this.tiles[i].mesh)
     }
+
+    this.fixNormals()
   }
 
   checkNewEntries(newPos, centerId) {
@@ -138,14 +146,420 @@ export class TileManager {
     });
   }
 
-  updateTiles(newCenterId, camPos) {
+  updateTiles(newCenterId) {
+    console.log('update')
     this.centerId = newCenterId
-    this.centerTerrain = this.tiles[this.centerId].mesh.position.toArray().slice()
     this.tiles.forEach(el => {
-      el.changePosition(this.centerTerrain, camPos)
+      if (el.id === newCenterId){
+        this.centerTerrain = el.mesh.position.toArray().slice()
+      }
+    })
+    // this.centerTerrain = this.tiles[this.centerId].mesh.position.toArray().slice()
+    // const centerCoords = [this.centerTerrain[0]/this.tileDim,this.centerTerrain[2]/this.tileDim]
+    // console.log('update new center: ' + centerCoords)
+    this.tiles.forEach(el => {
+      el.changePosition(this.centerTerrain, newCenterId)
+      el.rebuild()
+    });
+
+    this.fixNormals()
+
+    this.tiles.forEach(el => {
       if (this.params.terrain.showNormals) {
         this.updateNormals()
       }
     });
   }
+
+  fixNormals() {
+    let norm0 = this.tiles[0].mesh.geometry.attributes.normal.array.slice()
+    let norm1 = this.tiles[1].mesh.geometry.attributes.normal.array.slice()
+    let norm2 = this.tiles[2].mesh.geometry.attributes.normal.array.slice()
+    let norm3 = this.tiles[3].mesh.geometry.attributes.normal.array.slice()
+    let norm4 = this.tiles[4].mesh.geometry.attributes.normal.array.slice()
+    let norm5 = this.tiles[5].mesh.geometry.attributes.normal.array.slice()
+    let norm6 = this.tiles[6].mesh.geometry.attributes.normal.array.slice()
+    let norm7 = this.tiles[7].mesh.geometry.attributes.normal.array.slice()
+    let norm8 = this.tiles[8].mesh.geometry.attributes.normal.array.slice()
+
+    let n0 = this.getComponents(norm0)
+    let n1 = this.getComponents(norm1)
+    let n2 = this.getComponents(norm2)
+    let n3 = this.getComponents(norm3)
+    let n4 = this.getComponents(norm4)
+    let n5 = this.getComponents(norm5)
+    let n6 = this.getComponents(norm6)
+    let n7 = this.getComponents(norm7)
+    let n8 = this.getComponents(norm8)
+
+    const width = n3.length / (this.tiles[3].mesh.geometry.parameters.heightSegments + 1 )
+
+    let mean0r = []
+    let mean0b = []
+    let mean1b = []
+    let mean1l = []
+    let mean1r = []
+    let mean2l = []
+    let mean2b = []
+    let mean3r = []
+    let mean3t = []
+    let mean3b = []
+    let mean4l = []
+    let mean4t = []
+    let mean4r = []
+    let mean4b = []
+    let mean5l = []
+    let mean5b = []
+    let mean5t = []
+    let mean6t = []
+    let mean6r = []
+    let mean7t = []
+    let mean7l = []
+    let mean7r = []
+    let mean8t = []
+    let mean8l = []
+
+    for(let y = 0; y < width; y++) {
+      for(let x = 0; x < width; x++){
+        if (x===width-1){
+          mean0r.push(n0[y*width + x])
+          mean1r.push(n1[y*width + x])
+          mean3r.push(n3[y*width + x])
+          mean4r.push(n4[y*width + x])
+          mean6r.push(n6[y*width + x])
+          mean7r.push(n7[y*width + x])
+        }
+        if (x === 0){
+          mean1l.push(n1[y*width + x])
+          mean2l.push(n2[y*width + x])
+          mean4l.push(n4[y*width + x])
+          mean5l.push(n5[y*width + x])
+          mean7l.push(n7[y*width + x])
+          mean8l.push(n8[y*width + x])
+        }
+        if (y === width-1){
+          mean0b.push(n0[y*width + x])
+          mean1b.push(n1[y*width + x])
+          mean2b.push(n2[y*width + x])
+          mean3b.push(n3[y*width + x])
+          mean4b.push(n4[y*width + x])
+          mean5b.push(n5[y*width + x])
+        }
+        if (y===0){
+          mean3t.push(n3[y*width + x])
+          mean4t.push(n4[y*width + x])
+          mean5t.push(n5[y*width + x])
+          mean6t.push(n6[y*width + x])
+          mean7t.push(n7[y*width + x])
+          mean8t.push(n8[y*width + x])
+        }
+      }
+    }
+
+    let mean01 = []
+    let mean03 = []
+    let mean12 = []
+    let mean14 = []
+    let mean25 = []
+    let mean34 = []
+    let mean36 = []
+    let mean45 = []
+    let mean47 = []
+    let mean58 = []
+    let mean67 = []
+    let mean78 = []
+    for (let i = 0; i < width; i++){
+      mean01.push([(mean0r[i][0] + mean1l[i][0])/2, (mean0r[i][1] + mean1l[i][1])/2, (mean0r[i][2] + mean1l[i][2])/2])
+      mean03.push([(mean0b[i][0] + mean3t[i][0])/2, (mean0b[i][1] + mean3t[i][1])/2, (mean0b[i][2] + mean3t[i][2])/2])
+      mean12.push([(mean1r[i][0] + mean2l[i][0])/2, (mean1r[i][1] + mean2l[i][1])/2, (mean1r[i][2] + mean2l[i][2])/2])
+      mean14.push([(mean1b[i][0] + mean4t[i][0])/2, (mean1b[i][1] + mean4t[i][1])/2, (mean1b[i][2] + mean4t[i][2])/2])
+      mean25.push([(mean2b[i][0] + mean5t[i][0])/2, (mean2b[i][1] + mean5t[i][1])/2, (mean2b[i][2] + mean5t[i][2])/2])
+      mean34.push([(mean3r[i][0] + mean4l[i][0])/2, (mean3r[i][1] + mean4l[i][1])/2, (mean3r[i][2] + mean4l[i][2])/2])
+      mean36.push([(mean3b[i][0] + mean6t[i][0])/2, (mean3b[i][1] + mean6t[i][1])/2, (mean3b[i][2] + mean6t[i][2])/2])
+      mean45.push([(mean5l[i][0] + mean4r[i][0])/2, (mean5l[i][1] + mean4r[i][1])/2, (mean5l[i][2] + mean4r[i][2])/2])
+      mean47.push([(mean7t[i][0] + mean4b[i][0])/2, (mean7t[i][1] + mean4b[i][1])/2, (mean7t[i][2] + mean4b[i][2])/2])
+      mean58.push([(mean5b[i][0] + mean8t[i][0])/2, (mean5b[i][1] + mean8t[i][1])/2, (mean5b[i][2] + mean8t[i][2])/2])
+      mean67.push([(mean6r[i][0] + mean7l[i][0])/2, (mean6r[i][1] + mean7l[i][1])/2, (mean6r[i][2] + mean7l[i][2])/2])
+      mean78.push([(mean7r[i][0] + mean8l[i][0])/2, (mean7r[i][1] + mean8l[i][1])/2, (mean7r[i][2] + mean8l[i][2])/2])
+    }
+    
+    let n0m = n0.slice()
+    let n1m = n1.slice()
+    let n2m = n2.slice()
+    let n3m = n3.slice()
+    let n4m = n4.slice()
+    let n5m = n5.slice()
+    let n6m = n6.slice()
+    let n7m = n7.slice()
+    let n8m = n8.slice()
+
+    let p = 0
+    let o = 0
+    let k = 0
+    let f = 0
+    for(let y = 0; y < width; y++) {
+      for(let x = 0; x < width; x++){
+        if (x===width-1){
+          n0m[y*width + x] = mean01[p]
+          n1m[y*width + x] = mean12[p]
+          n3m[y*width + x] = mean34[p]
+          n4m[y*width + x] = mean45[p]
+          n6m[y*width + x] = mean67[p]
+          n7m[y*width + x] = mean78[p]
+          p+=1
+        }
+        if (x === 0){
+          n1m[y*width + x] = mean01[o]
+          n2m[y*width + x] = mean12[o]
+          n4m[y*width + x] = mean34[o]
+          n5m[y*width + x] = mean45[o]
+          n7m[y*width + x] = mean67[o]
+          n8m[y*width + x] = mean78[o]
+          o+=1
+        }
+        if(y === width-1){
+          n0m[y*width + x] = mean03[k]
+          n1m[y*width + x] = mean14[k]
+          n2m[y*width + x] = mean25[k]
+          n3m[y*width + x] = mean36[k]
+          n4m[y*width + x] = mean47[k]
+          n5m[y*width + x] = mean58[k]
+          k+=1
+        }
+        if (y === 0){
+          n3m[y*width + x] = mean03[f]
+          n4m[y*width + x] = mean14[f]
+          n5m[y*width + x] = mean25[f]
+          n6m[y*width + x] = mean36[f]
+          n7m[y*width + x] = mean47[f]
+          n8m[y*width + x] = mean58[f]
+          f+=1
+        }
+      }
+    }
+
+    let newNorm1 = this.reverseComponents(n1m)
+    let newNorm2 = this.reverseComponents(n2m)
+    let newNorm3 = this.reverseComponents(n3m) 
+    let newNorm4 = this.reverseComponents(n4m)
+    let newNorm5 = this.reverseComponents(n5m)
+    let newNorm6 = this.reverseComponents(n6m)
+    let newNorm7 = this.reverseComponents(n7m)
+    let newNorm8 = this.reverseComponents(n8m)
+
+    this.tiles[1].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm1), 3 ))
+    this.tiles[2].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm2), 3 ))
+    this.tiles[3].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm3), 3 ))
+    this.tiles[4].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm4), 3 ))
+    this.tiles[5].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm5), 3 ))
+    this.tiles[6].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm6), 3 ))
+    this.tiles[7].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm7), 3 ))
+    this.tiles[8].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm8), 3 ))
+
+    this.tiles[1].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[2].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[3].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[4].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[5].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[6].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[7].mesh.geometry.attributes.normal.needsUpdate = true;
+    this.tiles[8].mesh.geometry.attributes.normal.needsUpdate = true;
+  }
+
+  getComponents(vector) {
+    let v = []
+    for(let i = 0; i < vector.length; i+=3){
+      v.push([vector[i], vector[i+1], vector[i+2]])   
+    }
+    return v
+  }
+
+  reverseComponents(vector){
+    let v = []
+    for(let i = 0; i < vector.length; i++){
+      v.push(vector[i][0], vector[i][1], vector[i][2])
+    }
+    return v
+  }
+
+  // fixNormals(){
+  //   const tileCount = this.tiles[0].geometry.attributes.position.count
+  //   const tileSegments = this.tiles[0].geometry.parameters.widthSegments
+
+  //   let positionAttributes = []
+  //   let normalAttributes = []
+  //   this.tiles.forEach(el => {
+  //     positionAttributes.push(el.geometry.attributes['position'])
+  //     normalAttributes.push(el.geometry.attributes['normal'])
+  //   });
+
+  //   console.log(positionAttributes)
+  //   console.log(normalAttributes)
+
+  //   const width = tileCount / (tileSegments + 1)
+
+  //   let oneBigTile = []
+
+
+  //   let rows = []
+
+  //   for(let y = 0; y < width; y++){
+  //     let row0 = [], row1= [], row2= [], row3= [], row4= [], row5= [], row6= [], row7= [], row8= []
+  //     for(let x = 0; x < width; x++){
+  //       row0.push(positionAttributes[0].array[y*width + x])
+  //       row1.push(positionAttributes[1].array[y*width + x])
+  //       row2.push(positionAttributes[2].array[y*width + x])
+  //       row3.push(positionAttributes[3].array[y*width + x])
+  //       row4.push(positionAttributes[4].array[y*width + x])
+  //       row5.push(positionAttributes[5].array[y*width + x])
+  //       row6.push(positionAttributes[6].array[y*width + x])
+  //       row7.push(positionAttributes[7].array[y*width + x])
+  //       row8.push(positionAttributes[8].array[y*width + x])
+  //       if (x === width - 1){
+  //         rows.push(row0, row1, row2, row3, row4, row5, row6, row7, row8)
+  //         for (let k = 0; k < 9; k++){
+  //           for(let i = 0; i<row0.length; i++){
+  //             oneBigTile.push(rows[k][i])
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+    
+  //   const positionAttributeBigTile = new THREE.BufferAttribute( new Float32Array(oneBigTile), 3 )
+  //   const normalAttributeBigTile = new THREE.BufferAttribute( new Float32Array(oneBigTile), 3 )
+    
+    
+  //   for ( let i = 0, il = normalAttributeBigTile.count; i < il; i ++ ) {
+      
+  //     normalAttributeBigTile.setXYZ( i, 0, 0, 0 );
+      
+  //   }
+
+  //   const pA = new THREE.Vector3(), pB = new THREE.Vector3(), pC = new THREE.Vector3();
+  //   const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+
+  //   for ( let i = 0, il = positionAttributeBigTile.count; i < il; i += 3 ) {
+
+  //     pA.fromBufferAttribute( positionAttributeBigTile, i + 0 );
+  //     pB.fromBufferAttribute( positionAttributeBigTile, i + 1 );
+  //     pC.fromBufferAttribute( positionAttributeBigTile, i + 2 );
+
+  //     cb.subVectors( pC, pB );
+  //     ab.subVectors( pA, pB );
+  //     cb.cross( ab );
+
+  //     normalAttributeBigTile.setXYZ( i + 0, cb.x, cb.y, cb.z );
+  //     normalAttributeBigTile.setXYZ( i + 1, cb.x, cb.y, cb.z );
+  //     normalAttributeBigTile.setXYZ( i + 2, cb.x, cb.y, cb.z );
+
+  //   }
+
+  //   const _vector = new THREE.Vector3()
+  //   for ( let i = 0, il = normalAttributeBigTile.count; i < il; i ++ ) {
+
+	// 		_vector.fromBufferAttribute( normalAttributeBigTile, i );
+
+	// 		_vector.normalize();
+
+	// 		normalAttributeBigTile.setXYZ( i, _vector.x, _vector.y, _vector.z );
+
+	// 	}
+
+  //   rows = []
+
+  //   let norm0 = [], norm1 = [], norm2 = [], norm3 = [], norm4 = [], norm5 = [], norm6 = [], norm7 = [], norm8 = []
+  //   let norms = []
+  //   norms.push(norm0, norm1, norm2, norm3, norm4, norm5, norm6, norm7, norm8)
+
+  //   let k = 0
+  //   for(let y = 0; y < 3*width; y++){
+  //     for(let x = 0; x < 3*width; x++){
+  //       norms[k].push(normalAttributeBigTile.array[y*width + x])
+  //       if (x % width === width - 1) {
+  //         k = (k + 1) % 9
+  //       }
+  //     }
+  //   }
+
+  //   console.log(norms)
+  //   k = 0
+  //   this.tiles.forEach(el => {
+  //     el.mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(norms[k]), 3 ))
+  //     k+=1
+  //   });
+  // }
+
+  // fixNormals2(){
+  //   const tileCount = this.tiles[0].geometry.attributes.position.count
+
+  //   let positionAttributes = []
+  //   let normalAttributes = []
+  //   this.tiles.forEach(el => {
+  //     for(let i = 0; i < el.geometry.attributes['position'].array.length; i++){
+  //       positionAttributes.push(el.geometry.attributes['position'].array[i])
+  //       normalAttributes.push(el.geometry.attributes['normal'].array[i])
+  //     }
+  //   });
+
+  //   const positionAttribute = new THREE.BufferAttribute( new Float32Array(positionAttributes), 3 )
+  //   const normalAttribute = new THREE.BufferAttribute( new Float32Array(normalAttributes), 3 )
+
+  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
+
+  //   //   normalAttribute.setXYZ( i, 0, 0, 0 );
+
+  //   // }
+
+  //   console.log(positionAttribute)
+  //   console.log(normalAttribute)
+
+  //   // const pA = new THREE.Vector3(), pB = new THREE.Vector3(), pC = new THREE.Vector3();
+  //   // const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+
+  //   // for ( let i = 0, il = positionAttribute.count; i < il; i += 3 ) {
+
+  //   //   pA.fromBufferAttribute( positionAttribute, i + 0 );
+  //   //   pB.fromBufferAttribute( positionAttribute, i + 1 );
+  //   //   pC.fromBufferAttribute( positionAttribute, i + 2 );
+
+  //   //   cb.subVectors( pC, pB );
+  //   //   ab.subVectors( pA, pB );
+  //   //   cb.cross( ab );
+
+  //   //   normalAttribute.setXYZ( i + 0, cb.x, cb.y, cb.z );
+  //   //   normalAttribute.setXYZ( i + 1, cb.x, cb.y, cb.z );
+  //   //   normalAttribute.setXYZ( i + 2, cb.x, cb.y, cb.z );
+
+  //   // }
+
+  //   // const _vector = new THREE.Vector3()
+  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
+
+	// 	// 	_vector.fromBufferAttribute( normalAttribute, i );
+
+	// 	// 	_vector.normalize();
+
+	// 	// 	normalAttribute.setXYZ( i, _vector.x, _vector.y, _vector.z );
+
+	// 	// }
+
+  //   // // normalAttribute.normalizeNormals()
+
+  //   // console.log(normalAttribute)
+
+  //   // const vec = new THREE.Vector3()
+
+  //   // let k = 0
+  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
+  //   //   if (i % tileCount == 0 && i !== 0){
+  //   //     this.tiles[k].geometry.attributes.normal.needsUpdate = true
+  //   //     console.log(this.tiles[k].geometry.attributes.normal)
+  //   //     k+=1
+  //   //   }
+  //   //   vec.fromBufferAttribute(normalAttribute, i)
+  //   //   this.tiles[k].geometry.attributes.normal.setXYZ(i % tileCount, vec.x, vec.y, vec.z)
+	// 	// }
+  // }
 }
