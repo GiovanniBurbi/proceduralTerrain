@@ -3,8 +3,8 @@ import { math } from './math'
 export class ColorGenerator{
   constructor(params) {
     this.params = params
-    this.startHeights = [0.05, 0.1, 0.2, 0.5]
-    this.colors = [[0,0,1], [0,1,0], [0.2,0.2,0.2], [1,1,1]]
+    this.startHeights = [0.1, 0.15, 0.2, 0.5]
+    this.colors = [[125/255,107/255,94/255], [0.76,0.40,0.16], [0.2,0.2,0.2], [1,1,1]]
     this.blends = [0.1,0.1,0.1,0.1]
   }
 
@@ -35,6 +35,7 @@ export class ColorGenerator{
           color[2] = color[2] * (1 - colorLevel) + this.colors[i][2] * colorLevel
         }
 
+        // colorMap.push(0.2,0.2,0.2)
         colorMap.push(color[0], color[1], color[2])
 
         // colorMap.push(0.2, 0.2, 0.2)

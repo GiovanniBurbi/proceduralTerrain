@@ -53,7 +53,7 @@ export class TileManager {
 
       this.fixNormals()
 
-      this.tiles.forEach(el => {
+      this.tiles.forEach(() => {
         if (this.params.terrain.showNormals) {
           this.updateNormals()
         }
@@ -147,7 +147,6 @@ export class TileManager {
   }
 
   updateTiles(newCenterId) {
-    console.log('update')
     this.centerId = newCenterId
     this.tiles.forEach(el => {
       if (el.id === newCenterId){
@@ -157,10 +156,44 @@ export class TileManager {
     // this.centerTerrain = this.tiles[this.centerId].mesh.position.toArray().slice()
     // const centerCoords = [this.centerTerrain[0]/this.tileDim,this.centerTerrain[2]/this.tileDim]
     // console.log('update new center: ' + centerCoords)
+
     this.tiles.forEach(el => {
       el.changePosition(this.centerTerrain, newCenterId)
       el.rebuild()
     });
+
+    const centerCoords = [this.centerTerrain[0]/this.tileDim, this.centerTerrain[2]/this.tileDim]
+    let tilesList = new Array(9)
+    this.tiles.forEach(el => {
+      let relPos = [el.coords[0] - centerCoords[0], el.coords[1] - centerCoords[1]]
+      if (relPos[0] === 0){
+        if (relPos[1] === 0){
+          tilesList[4] = el
+        } else if (relPos[1] === -1){
+          tilesList[1] = el
+        } else {
+          tilesList[7] = el
+        }
+      } else if(relPos[0] === -1){
+        if(relPos[1] === 0){
+          tilesList[3] = el
+        } else if(relPos[1] === -1){
+          tilesList[0] = el
+        } else {
+          tilesList[6] = el
+        }
+      } else {
+        if(relPos[1] === 0){
+          tilesList[5] = el
+        } else if(relPos[1] === -1){
+          tilesList[2] = el
+        } else {
+          tilesList[8] = el
+        }
+      }
+    });
+
+    this.tiles = tilesList
 
     this.fixNormals()
 
@@ -381,185 +414,4 @@ export class TileManager {
     }
     return v
   }
-
-  // fixNormals(){
-  //   const tileCount = this.tiles[0].geometry.attributes.position.count
-  //   const tileSegments = this.tiles[0].geometry.parameters.widthSegments
-
-  //   let positionAttributes = []
-  //   let normalAttributes = []
-  //   this.tiles.forEach(el => {
-  //     positionAttributes.push(el.geometry.attributes['position'])
-  //     normalAttributes.push(el.geometry.attributes['normal'])
-  //   });
-
-  //   console.log(positionAttributes)
-  //   console.log(normalAttributes)
-
-  //   const width = tileCount / (tileSegments + 1)
-
-  //   let oneBigTile = []
-
-
-  //   let rows = []
-
-  //   for(let y = 0; y < width; y++){
-  //     let row0 = [], row1= [], row2= [], row3= [], row4= [], row5= [], row6= [], row7= [], row8= []
-  //     for(let x = 0; x < width; x++){
-  //       row0.push(positionAttributes[0].array[y*width + x])
-  //       row1.push(positionAttributes[1].array[y*width + x])
-  //       row2.push(positionAttributes[2].array[y*width + x])
-  //       row3.push(positionAttributes[3].array[y*width + x])
-  //       row4.push(positionAttributes[4].array[y*width + x])
-  //       row5.push(positionAttributes[5].array[y*width + x])
-  //       row6.push(positionAttributes[6].array[y*width + x])
-  //       row7.push(positionAttributes[7].array[y*width + x])
-  //       row8.push(positionAttributes[8].array[y*width + x])
-  //       if (x === width - 1){
-  //         rows.push(row0, row1, row2, row3, row4, row5, row6, row7, row8)
-  //         for (let k = 0; k < 9; k++){
-  //           for(let i = 0; i<row0.length; i++){
-  //             oneBigTile.push(rows[k][i])
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-
-    
-  //   const positionAttributeBigTile = new THREE.BufferAttribute( new Float32Array(oneBigTile), 3 )
-  //   const normalAttributeBigTile = new THREE.BufferAttribute( new Float32Array(oneBigTile), 3 )
-    
-    
-  //   for ( let i = 0, il = normalAttributeBigTile.count; i < il; i ++ ) {
-      
-  //     normalAttributeBigTile.setXYZ( i, 0, 0, 0 );
-      
-  //   }
-
-  //   const pA = new THREE.Vector3(), pB = new THREE.Vector3(), pC = new THREE.Vector3();
-  //   const cb = new THREE.Vector3(), ab = new THREE.Vector3();
-
-  //   for ( let i = 0, il = positionAttributeBigTile.count; i < il; i += 3 ) {
-
-  //     pA.fromBufferAttribute( positionAttributeBigTile, i + 0 );
-  //     pB.fromBufferAttribute( positionAttributeBigTile, i + 1 );
-  //     pC.fromBufferAttribute( positionAttributeBigTile, i + 2 );
-
-  //     cb.subVectors( pC, pB );
-  //     ab.subVectors( pA, pB );
-  //     cb.cross( ab );
-
-  //     normalAttributeBigTile.setXYZ( i + 0, cb.x, cb.y, cb.z );
-  //     normalAttributeBigTile.setXYZ( i + 1, cb.x, cb.y, cb.z );
-  //     normalAttributeBigTile.setXYZ( i + 2, cb.x, cb.y, cb.z );
-
-  //   }
-
-  //   const _vector = new THREE.Vector3()
-  //   for ( let i = 0, il = normalAttributeBigTile.count; i < il; i ++ ) {
-
-	// 		_vector.fromBufferAttribute( normalAttributeBigTile, i );
-
-	// 		_vector.normalize();
-
-	// 		normalAttributeBigTile.setXYZ( i, _vector.x, _vector.y, _vector.z );
-
-	// 	}
-
-  //   rows = []
-
-  //   let norm0 = [], norm1 = [], norm2 = [], norm3 = [], norm4 = [], norm5 = [], norm6 = [], norm7 = [], norm8 = []
-  //   let norms = []
-  //   norms.push(norm0, norm1, norm2, norm3, norm4, norm5, norm6, norm7, norm8)
-
-  //   let k = 0
-  //   for(let y = 0; y < 3*width; y++){
-  //     for(let x = 0; x < 3*width; x++){
-  //       norms[k].push(normalAttributeBigTile.array[y*width + x])
-  //       if (x % width === width - 1) {
-  //         k = (k + 1) % 9
-  //       }
-  //     }
-  //   }
-
-  //   console.log(norms)
-  //   k = 0
-  //   this.tiles.forEach(el => {
-  //     el.mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(norms[k]), 3 ))
-  //     k+=1
-  //   });
-  // }
-
-  // fixNormals2(){
-  //   const tileCount = this.tiles[0].geometry.attributes.position.count
-
-  //   let positionAttributes = []
-  //   let normalAttributes = []
-  //   this.tiles.forEach(el => {
-  //     for(let i = 0; i < el.geometry.attributes['position'].array.length; i++){
-  //       positionAttributes.push(el.geometry.attributes['position'].array[i])
-  //       normalAttributes.push(el.geometry.attributes['normal'].array[i])
-  //     }
-  //   });
-
-  //   const positionAttribute = new THREE.BufferAttribute( new Float32Array(positionAttributes), 3 )
-  //   const normalAttribute = new THREE.BufferAttribute( new Float32Array(normalAttributes), 3 )
-
-  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
-
-  //   //   normalAttribute.setXYZ( i, 0, 0, 0 );
-
-  //   // }
-
-  //   console.log(positionAttribute)
-  //   console.log(normalAttribute)
-
-  //   // const pA = new THREE.Vector3(), pB = new THREE.Vector3(), pC = new THREE.Vector3();
-  //   // const cb = new THREE.Vector3(), ab = new THREE.Vector3();
-
-  //   // for ( let i = 0, il = positionAttribute.count; i < il; i += 3 ) {
-
-  //   //   pA.fromBufferAttribute( positionAttribute, i + 0 );
-  //   //   pB.fromBufferAttribute( positionAttribute, i + 1 );
-  //   //   pC.fromBufferAttribute( positionAttribute, i + 2 );
-
-  //   //   cb.subVectors( pC, pB );
-  //   //   ab.subVectors( pA, pB );
-  //   //   cb.cross( ab );
-
-  //   //   normalAttribute.setXYZ( i + 0, cb.x, cb.y, cb.z );
-  //   //   normalAttribute.setXYZ( i + 1, cb.x, cb.y, cb.z );
-  //   //   normalAttribute.setXYZ( i + 2, cb.x, cb.y, cb.z );
-
-  //   // }
-
-  //   // const _vector = new THREE.Vector3()
-  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
-
-	// 	// 	_vector.fromBufferAttribute( normalAttribute, i );
-
-	// 	// 	_vector.normalize();
-
-	// 	// 	normalAttribute.setXYZ( i, _vector.x, _vector.y, _vector.z );
-
-	// 	// }
-
-  //   // // normalAttribute.normalizeNormals()
-
-  //   // console.log(normalAttribute)
-
-  //   // const vec = new THREE.Vector3()
-
-  //   // let k = 0
-  //   // for ( let i = 0, il = normalAttribute.count; i < il; i ++ ) {
-  //   //   if (i % tileCount == 0 && i !== 0){
-  //   //     this.tiles[k].geometry.attributes.normal.needsUpdate = true
-  //   //     console.log(this.tiles[k].geometry.attributes.normal)
-  //   //     k+=1
-  //   //   }
-  //   //   vec.fromBufferAttribute(normalAttribute, i)
-  //   //   this.tiles[k].geometry.attributes.normal.setXYZ(i % tileCount, vec.x, vec.y, vec.z)
-	// 	// }
-  // }
 }

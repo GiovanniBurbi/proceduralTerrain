@@ -18,6 +18,11 @@ export class Tile {
       wireframe: false,
       vertexColors: true,
     } )
+    // this.material = new THREE.ShaderMaterial( {
+    //   uniforms: {},
+    //   vertexShader: vertShader,
+    //   fragmentShader: fragShader,
+    // } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
 
@@ -27,7 +32,7 @@ export class Tile {
     this.mesh.receiveShadow = true;
 
     this.mesh.position.copy(new THREE.Vector3().fromArray(center))
-
+    
     this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
     this.params = params
@@ -38,28 +43,6 @@ export class Tile {
     this.offset_z_down = this.center[2] - this.halfDim
 
     this.rebuild()
-  }
-
-  selectColor(v) {
-    //  math curve for water, use some sort of spline bezier
-    // let r, g, b
-    // if (v < 0.2) {
-    //   r = 0
-    //   g = 0
-    //   b = 1
-    // } else {
-    //   if (v < 0.4) {
-    //     r = 0
-    //     g = 1
-    //     b = 0
-    //   } else {
-    //     r = 0.4
-    //     g = 0.4
-    //     b = 0.4
-    //   }
-    // } 
-    // return [r, g, b]
-    return [0.2, 0.2, 0.2]
   }
 
   buildTerrain() {
@@ -73,26 +56,23 @@ export class Tile {
 
     this.mesh.geometry.setAttribute('position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ))
 
-    this.mesh.geometry.elementsNeedUpdate = true;
-    this.mesh.geometry.verticesNeedUpdate = true;
+    this.mesh.geometry.attributes.position.needsUpdate = true;
     this.mesh.geometry.computeVertexNormals();
+    this.mesh.geometry.attributes.normal.needsUpdate = true;
   }
 
   colorTerrain() {
-    // let colors = []
-
-    // for (let y = 0; y < this.width; y++){
-    //   for(let x = 0; x < this.width; x++){
-    //     let color = this.selectColor(this.heightMap[y * this.width + x])
-    //     colors.push(color[0], color[1], color[2])
-    //   }
-    // }
-
     const colors = this.colorGen.colorMap(this.heightMap, this.width) 
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
     this.mesh.geometry.materialNeedUpdate = true
+  }
+
+  setNormals(normal) {
+    this.mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(normal), 3 ))
+    this.mesh.geometry.elementsNeedUpdate = true;
+    this.mesh.geometry.verticesNeedUpdate = true;
   }
 
   rebuild() {
@@ -103,6 +83,11 @@ export class Tile {
   }
 
   isCenter(position, centerId) {
+    // if (position.x < this.offset_x_dx && position.x > this.offset_x_sx &&
+    //   position.z < this.offset_z_up && position.z > this.offset_z_down ) {
+    //     this.signalNewCenter(this.id)
+    //   }
+
     if (centerId !== this.id) {
       if (position.x < this.offset_x_dx && position.x > this.offset_x_sx &&
           position.z < this.offset_z_up && position.z > this.offset_z_down ) {
@@ -116,12 +101,13 @@ export class Tile {
     window.dispatchEvent(event)
   }
 
-  changePosition(newCenterPos, camPos) {
+  changePosition(newCenterPos, newCenterId) {
     const dist = []
+    const tilePos = this.mesh.position.toArray().slice()
     for (let i = 0; i < this.center.length; i++) {
-      dist.push(this.mesh.position.toArray().slice()[i] - newCenterPos[i])
+      dist.push(tilePos[i] - newCenterPos[i])
     }
-    
+
     if (Math.abs(dist[0]) < 2 * this.dim && Math.abs(dist[2]) < 2 * this.dim) return
     
     const distDelta = this.dim * 3
@@ -150,7 +136,6 @@ export class Tile {
     this.updateBorders()
     this.coords = [this.center[0]/this.dim, this.center[2]/this.dim]
     this.mesh.position.copy(newCenter)
-    this.rebuild()
   }
 
   updateBorders() {

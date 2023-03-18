@@ -125,7 +125,7 @@ function notifyManager(newPos, centerId) {
 
 function updateTiles(e) {
   centerId = e.detail
-  tileManager.updateTiles(centerId, camera.position.toArray())
+  tileManager.updateTiles(centerId)
   renderer.render( scene, camera )
 }
 
