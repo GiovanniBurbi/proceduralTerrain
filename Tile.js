@@ -14,10 +14,10 @@ export class Tile {
 
     this.segments = 32
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
-    // this.material = new THREE.MeshStandardMaterial( {
-    //   wireframe: false,
-    //   vertexColors: true,
-    // } )
+    this.material = new THREE.MeshStandardMaterial( {
+      wireframe: false,
+      vertexColors: true,
+    } )
 
     this.heightMap = []
 
@@ -29,18 +29,17 @@ export class Tile {
       }
     }
 
-    const len = this.heightMap.length
+    // const len = this.heightMap.length
 
-    this.heightMap = 
-    this.material = new THREE.ShaderMaterial( {
-      uniforms: {
-        map: { value: this.heightMap },
-        heightMul: {value: params.terrain.maxHeight}
-      },
-      defines: {length: len},
-      vertexShader: document.getElementById('vertShader').textContent,
-      fragmentShader: document.getElementById('fragShader').textContent,
-    } )
+    // this.material = new THREE.ShaderMaterial( {
+    //   uniforms: {
+    //     map: { value: this.heightMap },
+    //     heightMul: {value: params.terrain.maxHeight}
+    //   },
+    //   defines: {length: len},
+    //   vertexShader: document.getElementById('vertShader').textContent,
+    //   fragmentShader: document.getElementById('fragShader').textContent,
+    // } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
 
@@ -79,6 +78,7 @@ export class Tile {
 
   colorTerrain() {
     const colors = this.colorGen.colorMap(this.heightMap, this.width) 
+    // const colors = this.colorGen.colorMap(this.heightMapNormalized, this.width) 
     // const colors = this.colorGen.colorMap(this.mesh.geometry.attributes.position.array.slice(), this.width) 
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
@@ -93,15 +93,11 @@ export class Tile {
   }
 
   rebuild() {
-    // this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
-    this.heightMap = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
-
-    this.material.uniforms.map = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
-
-    console.log(this.mesh)
+    this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
+    this.heightMapNormalized = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
 
     this.buildTerrain()
-    // this.colorTerrain()
+    this.colorTerrain()
   }
 
   isCenter(position, centerId) {
