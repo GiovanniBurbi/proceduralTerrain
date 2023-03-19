@@ -14,15 +14,33 @@ export class Tile {
 
     this.segments = 32
     this.geometry = new THREE.PlaneGeometry( this.dim, this.dim, this.segments, this.segments)
-    this.material = new THREE.MeshStandardMaterial( {
-      wireframe: false,
-      vertexColors: true,
-    } )
-    // this.material = new THREE.ShaderMaterial( {
-    //   uniforms: {},
-    //   vertexShader: vertShader,
-    //   fragmentShader: fragShader,
+    // this.material = new THREE.MeshStandardMaterial( {
+    //   wireframe: false,
+    //   vertexColors: true,
     // } )
+
+    this.heightMap = []
+
+    this.width = this.geometry.attributes.position.count / (this.segments + 1 )
+
+    for (let y = 0; y < this.width; y++){
+      for(let x = 0; x < this.width; x++){
+        this.heightMap[y * this.width + x] = 0
+      }
+    }
+
+    const len = this.heightMap.length
+
+    this.heightMap = 
+    this.material = new THREE.ShaderMaterial( {
+      uniforms: {
+        map: { value: this.heightMap },
+        heightMul: {value: params.terrain.maxHeight}
+      },
+      defines: {length: len},
+      vertexShader: document.getElementById('vertShader').textContent,
+      fragmentShader: document.getElementById('fragShader').textContent,
+    } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
 
@@ -32,8 +50,6 @@ export class Tile {
     this.mesh.receiveShadow = true;
 
     this.mesh.position.copy(new THREE.Vector3().fromArray(center))
-    
-    this.width = this.mesh.geometry.attributes.position.count / (this.segments + 1 )
 
     this.params = params
 
@@ -77,10 +93,15 @@ export class Tile {
   }
 
   rebuild() {
-    this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
+    // this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
+    this.heightMap = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
+
+    this.material.uniforms.map = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
+
+    console.log(this.mesh)
 
     this.buildTerrain()
-    this.colorTerrain()
+    // this.colorTerrain()
   }
 
   isCenter(position, centerId) {

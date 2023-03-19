@@ -92,6 +92,35 @@ export const noise = (function() {
       }
       return heights
     }
+
+    generateNoiseMapNormalized(coords, width, dim) {
+      const heights = new Array(dim)
+      const noiseFunc = this.noise[this.params.noise.type]
+      
+      let maxPossibleHeight = 0
+      let amplitude = 1
+      for (let i = 0; i < this.params.noise.octaves; i++){
+        maxPossibleHeight += amplitude
+        amplitude *= this.params.noise.persistance
+      }
+  
+      for (let y = 0; y < width; y++){
+        for(let x = 0; x < width; x++){
+          heights[y * width + x] = this.computeHeight(x, y, width, coords, noiseFunc)
+        }
+      }
+  
+      for (let y = 0; y < width; y++){
+        for(let x = 0; x < width; x++){  
+          let normHeight = (heights[y * width + x] + 1) / (2 * maxPossibleHeight)
+          if (normHeight < 0) {
+            normHeight = 0
+          }
+          heights[y * width + x] = normHeight
+        }
+      }
+      return heights
+    }
   }
 
   return {

@@ -2,71 +2,71 @@ import { math } from './math'
 import { spline } from './spline';
 import * as THREE from 'three'
 
-const _WHITE = new THREE.Color(0x808080);
-const _OCEAN = new THREE.Color(0xd9d592);
-const _BEACH = new THREE.Color(0xd9d592);
-const _SNOW = new THREE.Color(0xFFFFFF);
-const _FOREST_TROPICAL = new THREE.Color(0x4f9f0f);
-const _FOREST_TEMPERATE = new THREE.Color(0x2b960e);
-const _FOREST_BOREAL = new THREE.Color(0x29c100);
-const _SEA = new THREE.Color(0x006994)
+// const _WHITE = new THREE.Color(0x808080);
+// const _OCEAN = new THREE.Color(0xd9d592);
+// const _BEACH = new THREE.Color(0xd9d592);
+// const _SNOW = new THREE.Color(0xFFFFFF);
+// const _FOREST_TROPICAL = new THREE.Color(0x4f9f0f);
+// const _FOREST_TEMPERATE = new THREE.Color(0x2b960e);
+// const _FOREST_BOREAL = new THREE.Color(0x29c100);
+// const _SEA = new THREE.Color(0x006994)
+// 
+// export class ColorGenerator2{
+//   constructor(params){
+//     const colourLerp = (t, p0, p1) => {
+//       const c = p0.clone();
 
-export class ColorGenerator2{
-  constructor(params){
-    const colourLerp = (t, p0, p1) => {
-      const c = p0.clone();
+//       return c.lerpHSL(p1, t);
+//     };
 
-      return c.lerpHSL(p1, t);
-    };
+//     this.colourSpline = [
+//       new spline.LinearSpline(colourLerp),
+//       new spline.LinearSpline(colourLerp)
+//     ];
+//     // Arid
+//     this.colourSpline[0].AddPoint(0.0, new THREE.Color(0xb7a67d));
+//     this.colourSpline[0].AddPoint(0.5, new THREE.Color(0xf1e1bc));
+//     this.colourSpline[0].AddPoint(1.0, _SNOW);
 
-    this.colourSpline = [
-      new spline.LinearSpline(colourLerp),
-      new spline.LinearSpline(colourLerp)
-    ];
-    // Arid
-    this.colourSpline[0].AddPoint(0.0, new THREE.Color(0xb7a67d));
-    this.colourSpline[0].AddPoint(0.5, new THREE.Color(0xf1e1bc));
-    this.colourSpline[0].AddPoint(1.0, _SNOW);
+//     // Humid
+//     this.colourSpline[1].AddPoint(0.0, _FOREST_BOREAL);
+//     this.colourSpline[1].AddPoint(0.5, new THREE.Color(0xcee59c));
+//     this.colourSpline[1].AddPoint(1.0, _SNOW);
+//   }
 
-    // Humid
-    this.colourSpline[1].AddPoint(0.0, _FOREST_BOREAL);
-    this.colourSpline[1].AddPoint(0.5, new THREE.Color(0xcee59c));
-    this.colourSpline[1].AddPoint(1.0, _SNOW);
-  }
+//   _ChooseColour(x, y, z) {
+//     const m = z / 50;
+//     const h = z / 100.0;
 
-  _ChooseColour(x, y, z) {
-    const m = z / 50;
-    const h = z / 100.0;
+//     if (h < 0.05) {
+//       // return _SEA;
+//       return _OCEAN;
+//     }
 
-    if (h < 0.05) {
-      // return _SEA;
-      return _OCEAN;
-    }
+//     const c1 = this.colourSpline[0].Get(h);
+//     const c2 = this.colourSpline[1].Get(h);
 
-    const c1 = this.colourSpline[0].Get(h);
-    const c2 = this.colourSpline[1].Get(h);
+//     return c1.lerpHSL(c2, m);
+//   }
 
-    return c1.lerpHSL(c2, m);
-  }
+//   colorMap(vertices, width){
+//     const colours = []
+//     let colorMap = []
 
-  colorMap(vertices, width){
-    const colours = []
-    let colorMap = []
+//     for(let i = 0; i < vertices.length / 3; i++){
+//       colours.push(this._ChooseColour(vertices[i*3], vertices[i*3+1], vertices[i*3+2]))
+//     }
 
-    for(let i = 0; i < vertices.length / 3; i++){
-      colours.push(this._ChooseColour(vertices[i*3], vertices[i*3+1], vertices[i*3+2]))
-    }
+//     for (let y = 0; y < width; y++){
+//       for (let x = 0; x < width; x++){
+//         let color = colours[y*width + x]
+//         colorMap.push(color.r, color.g, color.b)
+//       }
+//     }
 
-    for (let y = 0; y < width; y++){
-      for (let x = 0; x < width; x++){
-        let color = colours[y*width + x]
-        colorMap.push(color.r, color.g, color.b)
-      }
-    }
-
-    return colorMap
-  }
-}
+//     return colorMap
+//   }
+// }
 export class ColorGenerator{
   constructor(params) {
     this.params = params
