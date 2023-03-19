@@ -63,6 +63,7 @@ export class Tile {
 
   colorTerrain() {
     const colors = this.colorGen.colorMap(this.heightMap, this.width) 
+    // const colors = this.colorGen.colorMap(this.mesh.geometry.attributes.position.array.slice(), this.width) 
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 

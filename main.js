@@ -7,6 +7,7 @@ import { TileManager } from './TileManager';
 
 
 let scene, camera, renderer, controls
+let sky
 let stats
 let gui
 let guiParams = {
@@ -37,7 +38,8 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0xaaaaaa)
+  // scene.background = new THREE.Color(0xaaaaaa)
+  // scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 )
 
   const sunlight = new THREE.DirectionalLight( 0xfff3e3)
   sunlight.position.y = 100
@@ -51,6 +53,8 @@ function init() {
   renderer.setPixelRatio( window.devicePixelRatio )
   renderer.setSize( window.innerWidth, window.innerHeight )
   container.appendChild( renderer.domElement )
+
+  // sky = new World_Sky(scene, renderer, gui, guiParams)
 
   generatePlainTerrain()
 
