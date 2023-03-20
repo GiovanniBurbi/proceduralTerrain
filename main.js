@@ -4,6 +4,8 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { FirstPersonControlsEnchanted } from './FirstPersonControlsEnchanted'
 import { TileManager } from './TileManager';
+import { Fog } from './fog';
+import {World_Sky} from './sky'
 
 
 let scene, camera, renderer, controls
@@ -22,7 +24,7 @@ const clock = new THREE.Clock()
 let fov = 60
 let aspect = window.innerWidth / window.innerHeight
 let near = 1
-let far = 10000
+let far = 1000000
 
 let tileManager
 
@@ -38,23 +40,34 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  // scene.background = new THREE.Color(0xaaaaaa)
+  // scene.background = new THREE.Color(0x8080FF)
+
   // scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 )
 
   const sunlight = new THREE.DirectionalLight( 0xfff3e3)
   sunlight.position.y = 100
-  sunlight.castShadow = false
+  sunlight.castShadow = true
+
+  sunlight.shadow.mapSize.width = 512;
+  sunlight.shadow.mapSize.height = 512;
+  sunlight.shadow.camera.near = 0.5;
+  sunlight.shadow.camera.far = 500;
+
   scene.add(sunlight)
 
   camera.position.set( 0, 50, 0)
   // camera.rotateX(5)
 
   renderer = new THREE.WebGLRenderer({antialias: true,})
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.setPixelRatio( window.devicePixelRatio )
   renderer.setSize( window.innerWidth, window.innerHeight )
   container.appendChild( renderer.domElement )
 
-  // sky = new World_Sky(scene, renderer, gui, guiParams)
+  const fog = new Fog(scene, 0.00025)
+
+  sky = new World_Sky(scene, renderer, gui, guiParams)
 
   generatePlainTerrain()
 

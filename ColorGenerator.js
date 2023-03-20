@@ -76,7 +76,6 @@ export class ColorGenerator{
   }
 
   inverseLerp(x, a, b) {
-    // return (x - a)/(b - a)
     return math.sat((x - a)/(b - a))
   }
 
