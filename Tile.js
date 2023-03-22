@@ -29,17 +29,6 @@ export class Tile {
       }
     }
 
-    // const len = this.heightMap.length
-
-    // this.material = new THREE.ShaderMaterial( {
-    //   uniforms: {
-    //     map: { value: this.heightMap },
-    //     heightMul: {value: params.terrain.maxHeight}
-    //   },
-    //   defines: {length: len},
-    //   vertexShader: document.getElementById('vertShader').textContent,
-    //   fragmentShader: document.getElementById('fragShader').textContent,
-    // } )
     this.mesh = new THREE.Mesh( this.geometry, this.material )
     this.mesh.rotateX( - Math.PI / 2)
 
@@ -64,8 +53,6 @@ export class Tile {
     let vertices = this.mesh.geometry.attributes.position.array.slice()
 
     for(let i = 0; i < this.heightMap.length; i++){
-
-      // vertices[i * 3 + 2] = Math.pow(this.heightMap[i], this.params.noise.exponentiation) * this.params.terrain.maxHeight
       vertices[i * 3 + 2] = this.heightMap[i]
     }
 
@@ -78,8 +65,6 @@ export class Tile {
 
   colorTerrain() {
     const colors = this.colorGen.colorMap(this.heightMap, this.width) 
-    // const colors = this.colorGen.colorMap(this.heightMapNormalized, this.width) 
-    // const colors = this.colorGen.colorMap(this.mesh.geometry.attributes.position.array.slice(), this.width) 
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
@@ -101,11 +86,6 @@ export class Tile {
   }
 
   isCenter(position, centerId) {
-    // if (position.x < this.offset_x_dx && position.x > this.offset_x_sx &&
-    //   position.z < this.offset_z_up && position.z > this.offset_z_down ) {
-    //     this.signalNewCenter(this.id)
-    //   }
-
     if (centerId !== this.id) {
       if (position.x < this.offset_x_dx && position.x > this.offset_x_sx &&
           position.z < this.offset_z_up && position.z > this.offset_z_down ) {
@@ -119,7 +99,7 @@ export class Tile {
     window.dispatchEvent(event)
   }
 
-  changePosition(newCenterPos, newCenterId) {
+  changePosition(newCenterPos) {
     const dist = []
     const tilePos = this.mesh.position.toArray().slice()
     for (let i = 0; i < this.center.length; i++) {
@@ -130,7 +110,7 @@ export class Tile {
     
     const distDelta = this.dim * 3
     let origin = this.mesh.position.clone()
-    // let origin = new THREE.Vector3().fromArray(this.center)
+
     let dx, dz
     let newCenter
 

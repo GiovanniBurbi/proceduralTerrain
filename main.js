@@ -12,10 +12,7 @@ let scene, camera, renderer, controls
 let sky
 let stats
 let gui
-let guiParams = {
-                  general: {
-                  },
-                }
+let guiParams = {}
 
 let tileDim = 300
 let centerId = 4
@@ -56,7 +53,6 @@ function init() {
   scene.add(sunlight)
 
   camera.position.set( 0, 50, 0)
-  // camera.rotateX(5)
 
   renderer = new THREE.WebGLRenderer({antialias: true,})
   renderer.shadowMap.enabled = true
@@ -75,11 +71,6 @@ function init() {
   controls.enabled = false
   controls.movementSpeed = 120
   controls.lookSpeed = 0.1
-  // controls.lookVertical = false
-
-  // controls.constrainVertical = true
-  // controls.verticalMin = Math.PI / 1.7
-  // controls.verticalMax = Math.PI / 2.3
 
   stats = new Stats()
   container.appendChild( stats.dom )
@@ -98,7 +89,6 @@ function onPositionChange() {
 }
 
 function onClick(e) {
-  // e.preventDefault();
   if (e.which == 2) {
     controls.enabled = !controls.enabled
   }
@@ -125,8 +115,7 @@ function render() {
 
 function createGUI() {
   gui = new GUI()
-
-  // const generalRollup = gui.addFolder('General')
+  
   gui.close()
 }
 

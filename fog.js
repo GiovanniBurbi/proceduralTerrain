@@ -141,6 +141,5 @@ export class Fog {
     #endif`;
 
     scene.fog = new THREE.FogExp2(0xDFE9F3, value)
-
   }
 }

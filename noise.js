@@ -2,7 +2,6 @@ import perlin from 'https://cdn.jsdelivr.net/gh/mikechambers/es6-perlin-module/p
 import { createNoise2D } from 'simplex-noise'
 import { Vector2 } from 'three'
 import alea from 'alea'
-import { math } from './math'
 
 export const noise = (function() {
 
@@ -81,12 +80,10 @@ export const noise = (function() {
   
       for (let y = 0; y < width; y++){
         for(let x = 0; x < width; x++){  
-          // let normHeight = math.sat((heights[y * width + x] + 1) / (2 * maxPossibleHeight))
           let normHeight = (heights[y * width + x] + 1) / (2 * maxPossibleHeight)
           if (normHeight < 0) {
             normHeight = 0
           }
-          // heights[y * width + x] = normHeight * this.params.terrain.maxHeight
           heights[y * width + x] = Math.round((Math.pow(normHeight, this.params.noise.exponentiation) * this.params.terrain.maxHeight) * 100) / 100 
         }
       }
