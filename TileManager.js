@@ -3,10 +3,12 @@ import { Tile } from "./Tile"
 import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
 import { ColorGenerator } from "./ColorGenerator"
+// import { BorderTile } from "./borderTile"
 
 export class TileManager {
   constructor(tileDim, scene, gui, params) {
     this.tiles = []
+    this.borderTiles = []
     this.tileDim = tileDim
     this.tileGroup = new THREE.Group()
     this.scene = scene
@@ -136,6 +138,31 @@ export class TileManager {
     }
     this.tileGroup.add(this.tiles[i].mesh)
     }
+
+    // this.borderTiles.push(new BorderTile([-2*this.tileDim, 0, -2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([-this.tileDim, 0, -2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([0, 0, -2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([this.tileDim, 0, -2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([2*this.tileDim, 0, -2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+
+    // this.borderTiles.push(new BorderTile([-2*this.tileDim, 0, 2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([-this.tileDim, 0, 2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([0, 0, 2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([this.tileDim, 0, 2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([2*this.tileDim, 0, 2*this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+
+    // this.borderTiles.push(new BorderTile([-2*this.tileDim, 0, -this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([-2*this.tileDim, 0, 0], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([-2*this.tileDim, 0, this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+
+    // this.borderTiles.push(new BorderTile([2*this.tileDim, 0, -this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([2*this.tileDim, 0, 0], this.tileDim, this.noise, this.params, this.ColorGen))
+    // this.borderTiles.push(new BorderTile([2*this.tileDim, 0, this.tileDim], this.tileDim, this.noise, this.params, this.ColorGen))
+
+    // for(let i = 0; i < this.borderTiles.length; i++){
+    //   this.tileGroup.add(this.borderTiles[i].mesh)
+    // }
+
 
     this.fixNormals()
   }

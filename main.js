@@ -126,7 +126,7 @@ function render() {
 function createGUI() {
   gui = new GUI()
 
-  const generalRollup = gui.addFolder('General')
+  // const generalRollup = gui.addFolder('General')
   gui.close()
 }
 
