@@ -201,128 +201,110 @@ export class TileManager {
     });
   }
 
-  // TODO: clean-up code
-  fixNormals() {
-    let norm0 = this.tiles[0].mesh.geometry.attributes.normal.array.slice()
-    let norm1 = this.tiles[1].mesh.geometry.attributes.normal.array.slice()
-    let norm2 = this.tiles[2].mesh.geometry.attributes.normal.array.slice()
-    let norm3 = this.tiles[3].mesh.geometry.attributes.normal.array.slice()
-    let norm4 = this.tiles[4].mesh.geometry.attributes.normal.array.slice()
-    let norm5 = this.tiles[5].mesh.geometry.attributes.normal.array.slice()
-    let norm6 = this.tiles[6].mesh.geometry.attributes.normal.array.slice()
-    let norm7 = this.tiles[7].mesh.geometry.attributes.normal.array.slice()
-    let norm8 = this.tiles[8].mesh.geometry.attributes.normal.array.slice()
-
-    let n0 = this.getComponents(norm0)
-    let n1 = this.getComponents(norm1)
-    let n2 = this.getComponents(norm2)
-    let n3 = this.getComponents(norm3)
-    let n4 = this.getComponents(norm4)
-    let n5 = this.getComponents(norm5)
-    let n6 = this.getComponents(norm6)
-    let n7 = this.getComponents(norm7)
-    let n8 = this.getComponents(norm8)
-
-    const width = n3.length / (this.tiles[3].mesh.geometry.parameters.heightSegments + 1 )
-
-    let mean0r = []
-    let mean0b = []
-    let mean1b = []
-    let mean1l = []
-    let mean1r = []
-    let mean2l = []
-    let mean2b = []
-    let mean3r = []
-    let mean3t = []
-    let mean3b = []
-    let mean4l = []
-    let mean4t = []
-    let mean4r = []
-    let mean4b = []
-    let mean5l = []
-    let mean5b = []
-    let mean5t = []
-    let mean6t = []
-    let mean6r = []
-    let mean7t = []
-    let mean7l = []
-    let mean7r = []
-    let mean8t = []
-    let mean8l = []
+  getRelevantEdges(norms, width){
+    let data = {}
+    data['0r'] = []
+    data['0b'] = []
+    data['1l'] = []
+    data['1b'] = []
+    data['1r'] = []
+    data['2l'] = []
+    data['2b'] = []
+    data['3t'] = []
+    data['3r'] = []
+    data['3b'] = []
+    data['4t'] = []
+    data['4r'] = []
+    data['4b'] = []
+    data['4l'] = []
+    data['5t'] = []
+    data['5b'] = []
+    data['5l'] = []
+    data['6r'] = []
+    data['6t'] = []
+    data['7t'] = []
+    data['7r'] = []
+    data['7l'] = []
+    data['8t'] = []
+    data['8l'] = []
 
     for(let y = 0; y < width; y++) {
       for(let x = 0; x < width; x++){
         if (x===width-1){
-          mean0r.push(n0[y*width + x])
-          mean1r.push(n1[y*width + x])
-          mean3r.push(n3[y*width + x])
-          mean4r.push(n4[y*width + x])
-          mean6r.push(n6[y*width + x])
-          mean7r.push(n7[y*width + x])
+          data['0r'].push(norms[0][y*width + x])
+          data['1r'].push(norms[1][y*width + x])
+          data['3r'].push(norms[3][y*width + x])
+          data['4r'].push(norms[4][y*width + x])
+          data['6r'].push(norms[6][y*width + x])
+          data['7r'].push(norms[7][y*width + x])
         }
         if (x === 0){
-          mean1l.push(n1[y*width + x])
-          mean2l.push(n2[y*width + x])
-          mean4l.push(n4[y*width + x])
-          mean5l.push(n5[y*width + x])
-          mean7l.push(n7[y*width + x])
-          mean8l.push(n8[y*width + x])
+          data['1l'].push(norms[1][y*width + x])
+          data['2l'].push(norms[2][y*width + x])
+          data['4l'].push(norms[4][y*width + x])
+          data['5l'].push(norms[5][y*width + x])
+          data['7l'].push(norms[7][y*width + x])
+          data['8l'].push(norms[8][y*width + x])
         }
         if (y === width-1){
-          mean0b.push(n0[y*width + x])
-          mean1b.push(n1[y*width + x])
-          mean2b.push(n2[y*width + x])
-          mean3b.push(n3[y*width + x])
-          mean4b.push(n4[y*width + x])
-          mean5b.push(n5[y*width + x])
+          data['0b'].push(norms[0][y*width + x])
+          data['1b'].push(norms[1][y*width + x])
+          data['2b'].push(norms[2][y*width + x])
+          data['3b'].push(norms[3][y*width + x])
+          data['4b'].push(norms[4][y*width + x])
+          data['5b'].push(norms[5][y*width + x])
         }
         if (y===0){
-          mean3t.push(n3[y*width + x])
-          mean4t.push(n4[y*width + x])
-          mean5t.push(n5[y*width + x])
-          mean6t.push(n6[y*width + x])
-          mean7t.push(n7[y*width + x])
-          mean8t.push(n8[y*width + x])
+          data['3t'].push(norms[3][y*width + x])
+          data['4t'].push(norms[4][y*width + x])
+          data['5t'].push(norms[5][y*width + x])
+          data['6t'].push(norms[6][y*width + x])
+          data['7t'].push(norms[7][y*width + x])
+          data['8t'].push(norms[8][y*width + x])
         }
       }
     }
 
-    let mean01 = []
-    let mean03 = []
-    let mean12 = []
-    let mean14 = []
-    let mean25 = []
-    let mean34 = []
-    let mean36 = []
-    let mean45 = []
-    let mean47 = []
-    let mean58 = []
-    let mean67 = []
-    let mean78 = []
+    return data
+  }
+
+  computeRelevantMeans(data, width){
+    let means = {}
+    means['01'] = []
+    means['03'] = []
+    means['12'] = []
+    means['14'] = []
+    means['25'] = []
+    means['34'] = []
+    means['36'] = []
+    means['45'] = []
+    means['47'] = []
+    means['58'] = []
+    means['67'] = []
+    means['78'] = []
     for (let i = 0; i < width; i++){
-      mean01.push([(mean0r[i][0] + mean1l[i][0])/2, (mean0r[i][1] + mean1l[i][1])/2, (mean0r[i][2] + mean1l[i][2])/2])
-      mean03.push([(mean0b[i][0] + mean3t[i][0])/2, (mean0b[i][1] + mean3t[i][1])/2, (mean0b[i][2] + mean3t[i][2])/2])
-      mean12.push([(mean1r[i][0] + mean2l[i][0])/2, (mean1r[i][1] + mean2l[i][1])/2, (mean1r[i][2] + mean2l[i][2])/2])
-      mean14.push([(mean1b[i][0] + mean4t[i][0])/2, (mean1b[i][1] + mean4t[i][1])/2, (mean1b[i][2] + mean4t[i][2])/2])
-      mean25.push([(mean2b[i][0] + mean5t[i][0])/2, (mean2b[i][1] + mean5t[i][1])/2, (mean2b[i][2] + mean5t[i][2])/2])
-      mean34.push([(mean3r[i][0] + mean4l[i][0])/2, (mean3r[i][1] + mean4l[i][1])/2, (mean3r[i][2] + mean4l[i][2])/2])
-      mean36.push([(mean3b[i][0] + mean6t[i][0])/2, (mean3b[i][1] + mean6t[i][1])/2, (mean3b[i][2] + mean6t[i][2])/2])
-      mean45.push([(mean5l[i][0] + mean4r[i][0])/2, (mean5l[i][1] + mean4r[i][1])/2, (mean5l[i][2] + mean4r[i][2])/2])
-      mean47.push([(mean7t[i][0] + mean4b[i][0])/2, (mean7t[i][1] + mean4b[i][1])/2, (mean7t[i][2] + mean4b[i][2])/2])
-      mean58.push([(mean5b[i][0] + mean8t[i][0])/2, (mean5b[i][1] + mean8t[i][1])/2, (mean5b[i][2] + mean8t[i][2])/2])
-      mean67.push([(mean6r[i][0] + mean7l[i][0])/2, (mean6r[i][1] + mean7l[i][1])/2, (mean6r[i][2] + mean7l[i][2])/2])
-      mean78.push([(mean7r[i][0] + mean8l[i][0])/2, (mean7r[i][1] + mean8l[i][1])/2, (mean7r[i][2] + mean8l[i][2])/2])
+      means['01'].push([(data['0r'][i][0] + data['1l'][i][0])/2, (data['0r'][i][1] + data['1l'][i][1])/2, (data['0r'][i][2] + data['1l'][i][2])/2])
+      means['03'].push([(data['0b'][i][0] + data['3t'][i][0])/2, (data['0b'][i][1] + data['3t'][i][1])/2, (data['0b'][i][2] + data['3t'][i][2])/2])
+      means['12'].push([(data['1r'][i][0] + data['2l'][i][0])/2, (data['1r'][i][1] + data['2l'][i][1])/2, (data['1r'][i][2] + data['2l'][i][2])/2])
+      means['14'].push([(data['1b'][i][0] + data['4t'][i][0])/2, (data['1b'][i][1] + data['4t'][i][1])/2, (data['1b'][i][2] + data['4t'][i][2])/2])
+      means['25'].push([(data['2b'][i][0] + data['5t'][i][0])/2, (data['2b'][i][1] + data['5t'][i][1])/2, (data['2b'][i][2] + data['5t'][i][2])/2])
+      means['34'].push([(data['3r'][i][0] + data['4l'][i][0])/2, (data['3r'][i][1] + data['4l'][i][1])/2, (data['3r'][i][2] + data['4l'][i][2])/2])
+      means['36'].push([(data['3b'][i][0] + data['6t'][i][0])/2, (data['3b'][i][1] + data['6t'][i][1])/2, (data['3b'][i][2] + data['6t'][i][2])/2])
+      means['45'].push([(data['5l'][i][0] + data['4r'][i][0])/2, (data['5l'][i][1] + data['4r'][i][1])/2, (data['5l'][i][2] + data['4r'][i][2])/2])
+      means['47'].push([(data['7t'][i][0] + data['4b'][i][0])/2, (data['7t'][i][1] + data['4b'][i][1])/2, (data['7t'][i][2] + data['4b'][i][2])/2])
+      means['58'].push([(data['5b'][i][0] + data['8t'][i][0])/2, (data['5b'][i][1] + data['8t'][i][1])/2, (data['5b'][i][2] + data['8t'][i][2])/2])
+      means['67'].push([(data['6r'][i][0] + data['7l'][i][0])/2, (data['6r'][i][1] + data['7l'][i][1])/2, (data['6r'][i][2] + data['7l'][i][2])/2])
+      means['78'].push([(data['7r'][i][0] + data['8l'][i][0])/2, (data['7r'][i][1] + data['8l'][i][1])/2, (data['7r'][i][2] + data['8l'][i][2])/2])
     }
-    
-    let n0m = n0.slice()
-    let n1m = n1.slice()
-    let n2m = n2.slice()
-    let n3m = n3.slice()
-    let n4m = n4.slice()
-    let n5m = n5.slice()
-    let n6m = n6.slice()
-    let n7m = n7.slice()
-    let n8m = n8.slice()
+
+    return means
+  }
+
+  updateNormals(norms, means, width){
+    let newNorms = []
+    for(let i = 0; i < norms.length; i++){
+      newNorms.push(norms[i].slice())
+    }
 
     let p = 0
     let o = 0
@@ -331,70 +313,72 @@ export class TileManager {
     for(let y = 0; y < width; y++) {
       for(let x = 0; x < width; x++){
         if (x===width-1){
-          n0m[y*width + x] = mean01[p]
-          n1m[y*width + x] = mean12[p]
-          n3m[y*width + x] = mean34[p]
-          n4m[y*width + x] = mean45[p]
-          n6m[y*width + x] = mean67[p]
-          n7m[y*width + x] = mean78[p]
+          newNorms[0][y*width + x] = means['01'][p]
+          newNorms[1][y*width + x] = means['12'][p]
+          newNorms[3][y*width + x] = means['34'][p]
+          newNorms[4][y*width + x] = means['45'][p]
+          newNorms[6][y*width + x] = means['67'][p]
+          newNorms[7][y*width + x] = means['78'][p]
           p+=1
         }
         if (x === 0){
-          n1m[y*width + x] = mean01[o]
-          n2m[y*width + x] = mean12[o]
-          n4m[y*width + x] = mean34[o]
-          n5m[y*width + x] = mean45[o]
-          n7m[y*width + x] = mean67[o]
-          n8m[y*width + x] = mean78[o]
+          newNorms[1][y*width + x] = means['01'][o]
+          newNorms[2][y*width + x] = means['12'][o]
+          newNorms[4][y*width + x] = means['34'][o]
+          newNorms[5][y*width + x] = means['45'][o]
+          newNorms[7][y*width + x] = means['67'][o]
+          newNorms[8][y*width + x] = means['78'][o]
           o+=1
         }
         if(y === width-1){
-          n0m[y*width + x] = mean03[k]
-          n1m[y*width + x] = mean14[k]
-          n2m[y*width + x] = mean25[k]
-          n3m[y*width + x] = mean36[k]
-          n4m[y*width + x] = mean47[k]
-          n5m[y*width + x] = mean58[k]
+          newNorms[0][y*width + x] = means['03'][k]
+          newNorms[1][y*width + x] = means['14'][k]
+          newNorms[2][y*width + x] = means['25'][k]
+          newNorms[3][y*width + x] = means['36'][k]
+          newNorms[4][y*width + x] = means['47'][k]
+          newNorms[5][y*width + x] = means['58'][k]
           k+=1
         }
         if (y === 0){
-          n3m[y*width + x] = mean03[f]
-          n4m[y*width + x] = mean14[f]
-          n5m[y*width + x] = mean25[f]
-          n6m[y*width + x] = mean36[f]
-          n7m[y*width + x] = mean47[f]
-          n8m[y*width + x] = mean58[f]
+          newNorms[3][y*width + x] = means['03'][f]
+          newNorms[4][y*width + x] = means['14'][f]
+          newNorms[5][y*width + x] = means['25'][f]
+          newNorms[6][y*width + x] = means['36'][f]
+          newNorms[7][y*width + x] = means['47'][f]
+          newNorms[8][y*width + x] = means['58'][f]
           f+=1
         }
       }
     }
 
-    let newNorm1 = this.reverseComponents(n1m)
-    let newNorm2 = this.reverseComponents(n2m)
-    let newNorm3 = this.reverseComponents(n3m) 
-    let newNorm4 = this.reverseComponents(n4m)
-    let newNorm5 = this.reverseComponents(n5m)
-    let newNorm6 = this.reverseComponents(n6m)
-    let newNorm7 = this.reverseComponents(n7m)
-    let newNorm8 = this.reverseComponents(n8m)
+    for (let i = 0; i < newNorms.length; i++){
+      newNorms[i] = this.reverseComponents(newNorms[i])
+    }
 
-    this.tiles[1].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm1), 3 ))
-    this.tiles[2].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm2), 3 ))
-    this.tiles[3].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm3), 3 ))
-    this.tiles[4].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm4), 3 ))
-    this.tiles[5].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm5), 3 ))
-    this.tiles[6].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm6), 3 ))
-    this.tiles[7].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm7), 3 ))
-    this.tiles[8].mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorm8), 3 ))
+    return newNorms
+  }
 
-    this.tiles[1].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[2].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[3].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[4].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[5].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[6].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[7].mesh.geometry.attributes.normal.needsUpdate = true;
-    this.tiles[8].mesh.geometry.attributes.normal.needsUpdate = true;
+  fixNormals() {
+    const width = this.tiles[0].mesh.geometry.attributes.position.count / (this.tiles[0].mesh.geometry.parameters.heightSegments + 1 )
+
+    let norms = []
+
+    this.tiles.forEach(el => {
+      norms.push(this.getComponents(el.mesh.geometry.attributes.normal.array.slice()))      
+    });
+
+    let data = this.getRelevantEdges(norms, width)
+
+    let means = this.computeRelevantMeans(data, width)
+
+    let newNorms = this.updateNormals(norms, means, width)
+    
+    let i = 0
+    this.tiles.forEach(el => {
+      el.mesh.geometry.setAttribute('normal', new THREE.BufferAttribute( new Float32Array(newNorms[i]), 3 ))
+      el.mesh.geometry.attributes.normal.needsUpdate = true;
+      i += 1
+    });
   }
 
   getComponents(vector) {
