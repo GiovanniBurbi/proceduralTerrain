@@ -99,21 +99,76 @@ float FBM(vec3 p) {
 `;
 
 export class Fog {
-  constructor(scene, value){
+  constructor(scene){
+    this.scene = scene
+  }
+
+  volumetric_fog(value=0.00025){
     THREE.ShaderChunk.fog_fragment = `
     #ifdef USE_FOG
-      vec3 fogOrigin = cameraPosition;
-      vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-      float fogDepth = distance(vWorldPosition, fogOrigin);
+      #ifdef FOG_EXP2
+        vec3 fogOrigin = cameraPosition;
+        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+        float fogDepth = distance(vWorldPosition, fogOrigin);
+        fogDepth *= fogDepth;
+        float heightFactor = 0.05;
+        float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
+            1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
+        fogFactor = saturate(fogFactor);
+      #else
+        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+      #endif
 
-      vec3 noiseSampleCoord = vWorldPosition * 0.00025;
-      float noiseSample = FBM(noiseSampleCoord + FBM(noiseSampleCoord)) * 0.5 + 0.5;
-      fogDepth *= mix(noiseSample, 1.0, saturate((fogDepth - 5000.0) / 5000.0));
-      fogDepth *= fogDepth;
-      float heightFactor = 0.05;
-      float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
-          1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
-      fogFactor = saturate(fogFactor);
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+    #endif`;
+
+    // get camera position and direction
+    THREE.ShaderChunk.fog_vertex = `
+    #ifdef USE_FOG
+      vWorldPosition = worldPosition.xyz;
+    #endif`;
+    
+    THREE.ShaderChunk.fog_pars_fragment = `
+    #ifdef USE_FOG
+      uniform vec3 fogColor;
+      varying vec3 vWorldPosition;
+      #ifdef FOG_EXP2
+        uniform float fogDensity;
+      #else
+        uniform float fogNear;
+        uniform float fogFar;
+      #endif
+    #endif`;
+    
+    THREE.ShaderChunk.fog_pars_vertex = `
+    #ifdef USE_FOG
+      varying vec3 vWorldPosition;
+    #endif`;
+
+    this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
+  }
+
+  volum_wrap_fog(value=0.00055){
+    THREE.ShaderChunk.fog_fragment = `
+    #ifdef USE_FOG
+      #ifdef FOG_EXP2
+      
+        vec3 fogOrigin = cameraPosition;
+        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+        float fogDepth = distance(vWorldPosition, fogOrigin);
+
+        vec3 noiseSampleCoord = vWorldPosition * 0.00025;
+        float noiseSample = FBM(noiseSampleCoord + FBM(noiseSampleCoord)) * 0.5 + 0.5;
+        fogDepth *= mix(noiseSample, 1.0, saturate((fogDepth - 5000.0) / 5000.0));
+        fogDepth *= fogDepth;
+        float heightFactor = 0.05;
+        float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
+            1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
+        fogFactor = saturate(fogFactor);
+
+      #else
+        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+      #endif
 
       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     #endif`;
@@ -140,6 +195,93 @@ export class Fog {
       varying vec3 vWorldPosition;
     #endif`;
 
-    scene.fog = new THREE.FogExp2(0xDFE9F3, value)
+    this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
+  }
+
+  linear_fog(){
+    THREE.ShaderChunk.fog_fragment = `
+    #ifdef USE_FOG
+      #ifdef FOG_EXP2
+        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+      #else
+        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+      #endif
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+    #endif`;
+    
+    THREE.ShaderChunk.fog_vertex = `
+    #ifdef USE_FOG
+      vFogDepth = - mvPosition.z;
+    #endif`;
+
+    THREE.ShaderChunk.fog_pars_fragment = `
+    #ifdef USE_FOG
+      uniform vec3 fogColor;
+      varying float vFogDepth;
+      #ifdef FOG_EXP2
+        uniform float fogDensity;
+      #else
+        uniform float fogNear;
+        uniform float fogFar;
+      #endif
+    #endif`;
+    
+    THREE.ShaderChunk.fog_pars_vertex = `
+    #ifdef USE_FOG
+      varying float vFogDepth;
+    #endif`;
+
+    
+    this.scene.fog = new THREE.Fog(0xDFE9F3, 0.1, 330)
+  }
+
+  exp_fog(value=0.005){
+    THREE.ShaderChunk.fog_fragment = `
+    #ifdef USE_FOG
+      #ifdef FOG_EXP2
+        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+      #else
+        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+      #endif
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+    #endif`;
+    
+    THREE.ShaderChunk.fog_pars_fragment = `
+    #ifdef USE_FOG
+      uniform vec3 fogColor;
+      varying float vFogDepth;
+      #ifdef FOG_EXP2
+        uniform float fogDensity;
+      #else
+        uniform float fogNear;
+        uniform float fogFar;
+      #endif
+    #endif`;
+    
+    THREE.ShaderChunk.fog_vertex = `
+    #ifdef USE_FOG
+      vFogDepth = - mvPosition.z;
+    #endif`;
+    
+    THREE.ShaderChunk.fog_pars_vertex = `
+    #ifdef USE_FOG
+      varying float vFogDepth;
+    #endif`;
+
+    this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
+  }
+
+  get_fog(type){
+    if (type === 'none'){
+      this.scene.fog = null
+    } else if (type === 'linear'){
+      this.linear_fog()
+    } else if (type === 'exp') {
+      this.exp_fog()
+    } else if (type === 'volumetric') {
+      this.volumetric_fog(0.0002)
+    } else if (type === 'volum_domain_wrapping'){
+      this.volum_wrap_fog(0.00025)
+    }
   }
 }

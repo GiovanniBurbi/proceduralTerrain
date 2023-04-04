@@ -3,7 +3,10 @@ import { Tile } from "./Tile"
 import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
 import { ColorGenerator } from "./ColorGenerator"
+import { Fog } from './fog';
 
+
+const event = new Event('needRender')
 export class TileManager {
   constructor(tileDim, scene, gui, params) {
     this.tiles = []
@@ -17,6 +20,8 @@ export class TileManager {
     this.helpers = []
     this.wireframes = []
 
+    this.fog = new Fog(this.scene)
+
     this.centerId = 4
     this.centerTerrain = [0,0,0]
 
@@ -24,6 +29,8 @@ export class TileManager {
     
     this.initGUI(gui, params)
     this.noise = new noise.NoiseGenerator(params)
+
+    this.fog.get_fog(this.params.terrain.fog_type)
  }
 
   initGUI(gui, params) {
@@ -44,7 +51,10 @@ export class TileManager {
     this.params.terrain = {
       maxHeight: 700.0,
       showNormals: false,
-      showWireframe: false
+      showWireframe: false,
+      noColors: false,
+      fixNormals: true,
+      fog_type: 'none',
     }
 
     const onParamsChange = () =>  {
@@ -52,7 +62,9 @@ export class TileManager {
         tile.rebuild()
       }
 
-      this.fixNormals()
+      if(this.params.terrain.fixNormals){
+        this.fixNormals()
+      }
 
       this.tiles.forEach(() => {
         if (this.params.terrain.showNormals) {
@@ -86,12 +98,17 @@ export class TileManager {
         for (let tile of this.tiles) {
           tile.mesh.material.wireframe = false
           tile.mesh.material.vertexColors = true
-          this.scene.background = new THREE.Color(0xaaaaaa)
+          this.scene.background = new THREE.Color(0x000000)
         }
       }
     }
 
-    this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange)
+    const onFogChange = () => {
+      this.fog.get_fog(this.params.terrain.fog_type)
+      window.dispatchEvent(event)
+    }
+
+    this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange, onFogChange)
   }
 
   updateNormals() {
@@ -104,13 +121,13 @@ export class TileManager {
     }
   }
 
-  createNoiseRollup(funcChange, funcChange2, funcChange3) {
+  createNoiseRollup(funcChange, funcChange2, funcChange3, funcChange4) {
     const rollup = this.gui.addFolder('Noise')
     rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 20, 1) .onChange(funcChange)
     rollup.add(this.params.noise, 'persistance', 0.25, 1.0).onChange(funcChange)
     rollup.add(this.params.noise, 'lacunarity', 1.0, 3.0).onChange(funcChange)
-    rollup.add(this.params.noise, 'exponentiation', 2.0, 5.0).onChange(funcChange)
+    rollup.add(this.params.noise, 'exponentiation', 1.0, 5.0).onChange(funcChange)
     rollup.add(this.params.noise, 'scale', 5.0, 200.0).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetX', 0.0, 250, 0.1).onChange(funcChange)
     rollup.add(this.params.noise, 'offsetY', 0.0, 250, 0.1).onChange(funcChange)
@@ -119,6 +136,9 @@ export class TileManager {
     terrainRollup.add(this.params.terrain, 'maxHeight', 0, 1024).onChange(funcChange)
     terrainRollup.add(this.params.terrain, 'showNormals').onFinishChange(funcChange2)
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
+    terrainRollup.add(this.params.terrain, 'noColors').onFinishChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'fixNormals').onFinishChange(funcChange)
+    terrainRollup.add(this.params.terrain, 'fog_type', ['none', 'linear', 'exp', 'volumetric', 'volum_domain_wrapping']).onFinishChange(funcChange4)
   }
 
   createTiles(num_chunks) {
@@ -137,7 +157,11 @@ export class TileManager {
     }
     this.tileGroup.add(this.tiles[i].mesh)
     }
-    this.fixNormals()
+    if(num_chunks !== 1){
+      if(this.params.terrain.fixNormals){
+        this.fixNormals()
+      }
+    }
   }
 
   checkNewEntries(newPos, centerId) {
@@ -192,9 +216,11 @@ export class TileManager {
 
     this.tiles = tilesList
 
-    this.fixNormals()
+    if(this.params.terrain.fixNormals){
+      this.fixNormals()
+    }
 
-    this.tiles.forEach(el => {
+    this.tiles.forEach(() => {
       if (this.params.terrain.showNormals) {
         this.updateNormals()
       }

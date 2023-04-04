@@ -36,7 +36,18 @@ export class ColorGenerator{
 
         colorMap.push(color[0], color[1], color[2])
 
-        // colorMap.push(0.2, 0.2, 0.2)
+        // colorMap.push(1,1,1)
+      }
+    }
+    
+    return colorMap
+  }
+
+  uniformMap(width, color){
+    let colorMap = []
+    for (let y = 0; y < width; y++){
+      for (let x = 0; x < width; x++){
+        colorMap.push(color[0],color[1],color[2])
       }
     }
     

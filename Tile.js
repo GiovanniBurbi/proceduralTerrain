@@ -6,6 +6,9 @@ export class Tile {
     this.noise = noiseGen
     this.colorGen = colorGenerator
 
+    this.uc = [[1,1,1], [1,1,1], [1,1,1], [1,1,1], [1,1,1], [1,1,1], [1,1,1], [1,1,1], [1,1,1]]
+    // this.uc = [[1,1,1], [1,0,0],[0,1,0],[0,0.5,1],[1,1,0], [1,0,1], [0,1,1],[0.5,1,0.5], [1,0.5,0.5]]
+
     this.center = center
     this.dim = dim
     this.halfDim = dim / 2
@@ -64,7 +67,12 @@ export class Tile {
   }
 
   colorTerrain() {
-    const colors = this.colorGen.colorMap(this.heightMap, this.width) 
+    let colors = null
+    if (this.params.terrain.noColors){
+      colors = this.colorGen.uniformMap(this.width, this.uc[this.id]) 
+    } else {
+      colors = this.colorGen.colorMap(this.heightMap, this.width) 
+    }
 
     this.mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
 
@@ -79,7 +87,6 @@ export class Tile {
 
   rebuild() {
     this.heightMap = this.noise.generateNoiseMap(this.coords, this.width, this.num_vertex)
-    this.heightMapNormalized = this.noise.generateNoiseMapNormalized(this.coords, this.width, this.num_vertex)
 
     this.buildTerrain()
     this.colorTerrain()

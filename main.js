@@ -38,8 +38,8 @@ function init() {
 
   scene = new THREE.Scene()
   // scene.background = new THREE.Color(0x8080FF)
-
-  // scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 )
+  // scene.background = new THREE.Color(0x000000)
+  scene.background = new THREE.Color(0xDFE9F3)
 
   const sunlight = new THREE.DirectionalLight( 0xfff3e3)
   sunlight.position.y = 100
@@ -61,9 +61,7 @@ function init() {
   renderer.setSize( window.innerWidth, window.innerHeight )
   container.appendChild( renderer.domElement )
 
-  const fog = new Fog(scene, 0.00025)
-
-  sky = new World_Sky(scene, renderer, gui, guiParams)
+  // sky = new World_Sky(scene, renderer, gui, guiParams)
 
   generatePlainTerrain()
 
@@ -82,6 +80,12 @@ function init() {
   window.addEventListener('positionChanged', onPositionChange)
 
   window.addEventListener('changeCenterTile', updateTiles)
+
+  window.addEventListener('needRender', re_render)
+}
+
+function re_render(){
+  renderer.render( scene, camera )
 }
 
 function onPositionChange() {
@@ -109,7 +113,8 @@ function animate() {
 
 
 function render() {
-  controls.update( clock.getDelta() )
+  let deltaTime = clock.getDelta()
+  controls.update( deltaTime )
   renderer.render( scene, camera )
 }
 
