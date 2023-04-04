@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import './style.css'
+import '../style.css'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'dat.gui'
 import { FirstPersonControlsEnchanted } from './FirstPersonControlsEnchanted'
