@@ -26,8 +26,6 @@ export class ColorGenerator{
           color.push(1,1,1)
         }
         for (let i = 0; i < this.colors.length; i++) {
-          // let colorLevel = math.sat(Math.sign(valuePercent - this.startHeights[i]))
-
           let colorLevel = this.inverseLerp(-this.blends[i]/2 - 0.00001, this.blends[i]/2 + 0.00001, (valuePercent - this.startHeights[i]))
           color[0] = color[0] * (1 - colorLevel) + this.colors[i][0] * colorLevel
           color[1] = color[1] * (1 - colorLevel) + this.colors[i][1] * colorLevel
@@ -35,8 +33,6 @@ export class ColorGenerator{
         }
 
         colorMap.push(color[0], color[1], color[2])
-
-        // colorMap.push(1,1,1)
       }
     }
     

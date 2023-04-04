@@ -9,7 +9,7 @@ import {World_Sky} from './sky'
 
 
 let scene, camera, renderer, controls
-let sky
+let sky, fog
 let stats
 let gui
 let guiParams = {}
@@ -37,8 +37,6 @@ function init() {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 
   scene = new THREE.Scene()
-  // scene.background = new THREE.Color(0x8080FF)
-  // scene.background = new THREE.Color(0x000000)
   scene.background = new THREE.Color(0xDFE9F3)
 
   const sunlight = new THREE.DirectionalLight( 0xfff3e3)
@@ -64,6 +62,12 @@ function init() {
   // sky = new World_Sky(scene, renderer, gui, guiParams)
 
   generatePlainTerrain()
+
+  fog = new Fog(scene)
+
+  // choices: 'none', 'linear', 'exp', 'volumetric', 'volumetric_domain_wrapping'
+  fog.set_fog('volumetric_domain_wrapping', 0.00015)
+  // fog.set_fog('exp', 0.00025)
 
   controls = new FirstPersonControlsEnchanted( camera, renderer.domElement )
   controls.enabled = false

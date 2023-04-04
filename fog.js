@@ -199,79 +199,14 @@ export class Fog {
   }
 
   linear_fog(){
-    THREE.ShaderChunk.fog_fragment = `
-    #ifdef USE_FOG
-      #ifdef FOG_EXP2
-        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
-      #else
-        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
-      #endif
-      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-    #endif`;
-    
-    THREE.ShaderChunk.fog_vertex = `
-    #ifdef USE_FOG
-      vFogDepth = - mvPosition.z;
-    #endif`;
-
-    THREE.ShaderChunk.fog_pars_fragment = `
-    #ifdef USE_FOG
-      uniform vec3 fogColor;
-      varying float vFogDepth;
-      #ifdef FOG_EXP2
-        uniform float fogDensity;
-      #else
-        uniform float fogNear;
-        uniform float fogFar;
-      #endif
-    #endif`;
-    
-    THREE.ShaderChunk.fog_pars_vertex = `
-    #ifdef USE_FOG
-      varying float vFogDepth;
-    #endif`;
-
-    
     this.scene.fog = new THREE.Fog(0xDFE9F3, 0.1, 330)
   }
 
   exp_fog(value=0.005){
-    THREE.ShaderChunk.fog_fragment = `
-    #ifdef USE_FOG
-      #ifdef FOG_EXP2
-        float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
-      #else
-        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
-      #endif
-      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
-    #endif`;
-    
-    THREE.ShaderChunk.fog_pars_fragment = `
-    #ifdef USE_FOG
-      uniform vec3 fogColor;
-      varying float vFogDepth;
-      #ifdef FOG_EXP2
-        uniform float fogDensity;
-      #else
-        uniform float fogNear;
-        uniform float fogFar;
-      #endif
-    #endif`;
-    
-    THREE.ShaderChunk.fog_vertex = `
-    #ifdef USE_FOG
-      vFogDepth = - mvPosition.z;
-    #endif`;
-    
-    THREE.ShaderChunk.fog_pars_vertex = `
-    #ifdef USE_FOG
-      varying float vFogDepth;
-    #endif`;
-
     this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
   }
 
-  get_fog(type){
+  set_fog(type, value=0.0002){
     if (type === 'none'){
       this.scene.fog = null
     } else if (type === 'linear'){
@@ -279,9 +214,12 @@ export class Fog {
     } else if (type === 'exp') {
       this.exp_fog()
     } else if (type === 'volumetric') {
-      this.volumetric_fog(0.0002)
-    } else if (type === 'volum_domain_wrapping'){
-      this.volum_wrap_fog(0.00025)
+      this.volumetric_fog(value)
+    } else if (type === 'volumetric_domain_wrapping'){
+      if (value === 0.0002){
+        value = 0.00025
+      }
+      this.volum_wrap_fog(value)
     }
   }
 }

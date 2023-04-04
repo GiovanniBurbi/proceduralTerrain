@@ -3,7 +3,6 @@ import { Tile } from "./Tile"
 import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
 import { ColorGenerator } from "./ColorGenerator"
-import { Fog } from './fog';
 
 
 const event = new Event('needRender')
@@ -20,8 +19,6 @@ export class TileManager {
     this.helpers = []
     this.wireframes = []
 
-    this.fog = new Fog(this.scene)
-
     this.centerId = 4
     this.centerTerrain = [0,0,0]
 
@@ -29,8 +26,6 @@ export class TileManager {
     
     this.initGUI(gui, params)
     this.noise = new noise.NoiseGenerator(params)
-
-    this.fog.get_fog(this.params.terrain.fog_type)
  }
 
   initGUI(gui, params) {
@@ -54,7 +49,6 @@ export class TileManager {
       showWireframe: false,
       noColors: false,
       fixNormals: true,
-      fog_type: 'none',
     }
 
     const onParamsChange = () =>  {
@@ -103,12 +97,7 @@ export class TileManager {
       }
     }
 
-    const onFogChange = () => {
-      this.fog.get_fog(this.params.terrain.fog_type)
-      window.dispatchEvent(event)
-    }
-
-    this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange, onFogChange)
+    this.createNoiseRollup(onParamsChange, onNormalViewChange, onWireframeViewChange)
   }
 
   updateNormals() {
@@ -121,7 +110,7 @@ export class TileManager {
     }
   }
 
-  createNoiseRollup(funcChange, funcChange2, funcChange3, funcChange4) {
+  createNoiseRollup(funcChange, funcChange2, funcChange3) {
     const rollup = this.gui.addFolder('Noise')
     rollup.add(this.params.noise, 'type', ['perlin', 'simplex']).onFinishChange(funcChange)
     rollup.add(this.params.noise, 'octaves', 1, 20, 1) .onChange(funcChange)
@@ -138,7 +127,6 @@ export class TileManager {
     terrainRollup.add(this.params.terrain, 'showWireframe').onFinishChange(funcChange3)
     terrainRollup.add(this.params.terrain, 'noColors').onFinishChange(funcChange)
     terrainRollup.add(this.params.terrain, 'fixNormals').onFinishChange(funcChange)
-    terrainRollup.add(this.params.terrain, 'fog_type', ['none', 'linear', 'exp', 'volumetric', 'volum_domain_wrapping']).onFinishChange(funcChange4)
   }
 
   createTiles(num_chunks) {
