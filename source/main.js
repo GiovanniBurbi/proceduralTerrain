@@ -78,18 +78,9 @@ function init() {
   container.appendChild( stats.dom )
   
   window.addEventListener('resize', onWindowResize )
-  
   window.addEventListener('mousedown', onClick )
-
   window.addEventListener('positionChanged', onPositionChange)
-
   window.addEventListener('changeCenterTile', updateTiles)
-
-  window.addEventListener('needRender', re_render)
-}
-
-function re_render(){
-  renderer.render( scene, camera )
 }
 
 function onPositionChange() {

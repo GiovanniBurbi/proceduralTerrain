@@ -4,8 +4,6 @@ import { noise } from "./noise"
 import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
 import { ColorGenerator } from "./ColorGenerator"
 
-
-const event = new Event('needRender')
 export class TileManager {
   constructor(tileDim, scene, gui, params) {
     this.tiles = []

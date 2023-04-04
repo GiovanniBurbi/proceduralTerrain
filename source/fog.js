@@ -110,14 +110,18 @@ export class Fog {
     THREE.ShaderChunk.fog_fragment = `
     #ifdef USE_FOG
       #ifdef FOG_EXP2
+
         vec3 fogOrigin = cameraPosition;
-        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-        float fogDepth = distance(vWorldPosition, fogOrigin);
+        vec3 fogDirection = normalize(varWorldPosition - fogOrigin);
+      
+        float fogDepth = distance(varWorldPosition, fogOrigin);
         fogDepth *= fogDepth;
+      
         float heightFactor = 0.05;
         float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
             1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
         fogFactor = saturate(fogFactor);
+      
       #else
         float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
       #endif
@@ -128,24 +132,28 @@ export class Fog {
     // get camera position and direction
     THREE.ShaderChunk.fog_vertex = `
     #ifdef USE_FOG
-      vWorldPosition = worldPosition.xyz;
+      varWorldPosition = worldPosition.xyz;
     #endif`;
     
     THREE.ShaderChunk.fog_pars_fragment = `
     #ifdef USE_FOG
+
       uniform vec3 fogColor;
-      varying vec3 vWorldPosition;
+      varying vec3 varWorldPosition;
+
       #ifdef FOG_EXP2
         uniform float fogDensity;
+      
       #else
         uniform float fogNear;
         uniform float fogFar;
       #endif
+
     #endif`;
     
     THREE.ShaderChunk.fog_pars_vertex = `
     #ifdef USE_FOG
-      varying vec3 vWorldPosition;
+      varying vec3 varWorldPosition;
     #endif`;
 
     this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
@@ -157,13 +165,15 @@ export class Fog {
       #ifdef FOG_EXP2
       
         vec3 fogOrigin = cameraPosition;
-        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-        float fogDepth = distance(vWorldPosition, fogOrigin);
+        vec3 fogDirection = normalize(varWorldPosition - fogOrigin);
+        float fogDepth = distance(varWorldPosition, fogOrigin);
 
-        vec3 noiseSampleCoord = vWorldPosition * 0.00025;
+        vec3 noiseSampleCoord = varWorldPosition * 0.00025;
         float noiseSample = FBM(noiseSampleCoord + FBM(noiseSampleCoord)) * 0.5 + 0.5;
+        
         fogDepth *= mix(noiseSample, 1.0, saturate((fogDepth - 5000.0) / 5000.0));
         fogDepth *= fogDepth;
+        
         float heightFactor = 0.05;
         float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
             1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
@@ -179,7 +189,7 @@ export class Fog {
     THREE.ShaderChunk.fog_pars_fragment = _NOISE_GLSL + `
     #ifdef USE_FOG
       uniform vec3 fogColor;
-      varying vec3 vWorldPosition;
+      varying vec3 varWorldPosition;
       #ifdef FOG_EXP2
         uniform float fogDensity;
       #else
@@ -190,12 +200,12 @@ export class Fog {
     
     THREE.ShaderChunk.fog_vertex = `
     #ifdef USE_FOG
-      vWorldPosition = worldPosition.xyz;
+      varWorldPosition = worldPosition.xyz;
     #endif`;
     
     THREE.ShaderChunk.fog_pars_vertex = `
     #ifdef USE_FOG
-      varying vec3 vWorldPosition;
+      varying vec3 varWorldPosition;
     #endif`;
 
     this.scene.fog = new THREE.FogExp2(0xDFE9F3, value)
